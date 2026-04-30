@@ -1,8 +1,3 @@
-/* ===========================================================
-   组内内容协调投票系统 - 样式表
-   风格：UC Davis SISWeb 早期Web应用风格 (复刻)
-   =========================================================== */
-
 * {
     box-sizing: border-box;
 }
@@ -190,6 +185,12 @@ body {
     background: linear-gradient(to bottom, #fafcff 0%, #f0f4fa 100%);
     padding: 12px 14px;
     position: relative;
+}
+.form-card:not(.expanded) {
+    padding: 6px 14px;
+}
+.form-card:not(.expanded) .form-card-header {
+    margin-bottom: 0;
 }
 
 .form-card-header {
