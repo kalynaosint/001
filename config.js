@@ -18,9 +18,9 @@
 
 const MEMBERS = [
     // ===== 3 名运营者 =====
-    { id: "user01", name: "张三", password: "bilibili123", role: "operator_bilibili" },
-    { id: "user02", name: "李四", password: "douyin123",   role: "operator_douyin" },
-    { id: "user03", name: "王五", password: "zhihu123",    role: "operator_zhihu" },
+    { id: "user01", name: "张三", password: "222", role: "operator_bilibili" },
+    { id: "user02", name: "李四", password: "333",   role: "operator_douyin" },
+    { id: "user03", name: "王五", password: "444",    role: "operator_zhihu" },
 
     // ===== 17 名普通组员 =====
     { id: "user04", name: "成员A", password: "pass04", role: "member" },
