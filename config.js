@@ -24,9 +24,9 @@ const MEMBERS = [
     { id: "leader01", name: "组长",   password: "leader123",   role: "leader" },
 
     // ===== 3 名运营者 =====
-    { id: "user01", name: "张三", password: "bilibili123", role: "operator_bilibili" },
-    { id: "user02", name: "李四", password: "douyin123",   role: "operator_douyin" },
-    { id: "user03", name: "王五", password: "zhihu123",    role: "operator_zhihu" },
+    { id: "user01", name: "b站负责人", password: "bilibili123", role: "operator_bilibili" },
+    { id: "user02", name: "CSFS（抖音）", password: "Cc3310121029",   role: "operator_douyin" },
+    { id: "user03", name: "CSFS（知乎）", password: "Cc3310121029",    role: "operator_zhihu" },
 
     // ===== 16 名普通组员 =====
     { id: "user04", name: "成员A", password: "pass04", role: "member" },
