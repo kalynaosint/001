@@ -186,10 +186,10 @@ body {
     padding: 12px 14px;
     position: relative;
 }
-.form-card:not(.expanded) {
-    padding: 6px 14px;
+.form-card:not(:has(.form-card-body)) {
+    padding: 5px 14px;
 }
-.form-card:not(.expanded) .form-card-header {
+.form-card:not(:has(.form-card-body)) .form-card-header {
     margin-bottom: 0;
 }
 
