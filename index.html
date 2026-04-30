@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 内容协调投票系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- 顶部Tab导航（登录页禁用，仅展示） -->
+<div class="top-nav">
+    <ul>
+        <li><a href="#" class="active">登录</a></li>
+    </ul>
+</div>
+
+<!-- 子导航 -->
+<div class="sub-nav">
+    <a href="#" class="active">成员登录</a>
+</div>
+
+<!-- 登录卡片 -->
+<div class="login-wrapper">
+    <div class="login-header">
+        <span class="icon">🔐</span>成员登录
+    </div>
+    <div class="login-body">
+        <h1 class="login-title">内容协调投票系统</h1>
+        <div class="login-subtitle">- 组内 Bilibili / 抖音 / 知乎 内容发布协调</div>
+
+        <div id="errorMsg" class="login-error" style="display: none;"></div>
+
+        <form id="loginForm" autocomplete="off">
+            <div class="form-row">
+                <label for="memberSelect">选择成员：</label>
+                <select id="memberSelect" required>
+                    <option value="">-- 请选择 --</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="passwordInput">密码：</label>
+                <input type="password" id="passwordInput" required>
+            </div>
+            <div class="login-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-icon">▶</span>登录
+                </button>
+            </div>
+        </form>
+
+        <div class="login-hint">
+            提示：成员名单与密码由管理员在 <code>config.js</code> 中维护。<br>
+            若遗忘密码请联系管理员。
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+    // 填充成员下拉框
+    const select = document.getElementById("memberSelect");
+    MEMBERS.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        const roleLabel = m.role === "operator_bilibili" ? " (Bilibili运营)"
+            : m.role === "operator_douyin"   ? " (抖音运营)"
+            : m.role === "operator_zhihu"    ? " (知乎运营)"
+            : "";
+        opt.textContent = m.name + roleLabel;
+        select.appendChild(opt);
+    });
+
+    // 已登录则跳转
+    if (loadSession()) {
+        window.location.href = "app.html";
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const id = select.value;
+        const pwd = document.getElementById("passwordInput").value;
+        const member = getMemberById(id);
+        const errBox = document.getElementById("errorMsg");
+
+        if (!member) {
+            errBox.textContent = "请选择有效的成员";
+            errBox.style.display = "block";
+            return;
+        }
+        if (member.password !== pwd) {
+            errBox.textContent = "密码错误";
+            errBox.style.display = "block";
+            return;
+        }
+        // 登录成功
+        saveSession({ id: member.id, name: member.name, role: member.role });
+        window.location.href = "app.html";
+    });
+</script>
+
+</body>
+</html>
