@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>内容协调投票系统</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
@@ -601,6 +603,11 @@ setInterval(() => {
 }, 60 * 1000);
 
 // 初始化
+_onUpdate = () => {
+    if (currentTab === "myforms" || currentTab === "all") {
+        renderRequestList(currentTab === "all");
+    }
+};
 switchView("myforms");
 </script>
 
