@@ -15,40 +15,6 @@ body {
 }
 
 /* ============================================================
-   顶部 Logo 条 (仿 OASIS site header)
-   ============================================================ */
-.site-header {
-    background: linear-gradient(to bottom, #335379 0%, #1a3a6e 50%, #002855 100%);
-    border-bottom: 2px solid #000;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.25);
-    padding: 0;
-}
-
-.site-header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 8px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.site-logo {
-    height: 36px;
-    width: auto;
-    display: block;
-}
-
-.site-title {
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
-    font-family: "Trebuchet MS", "Helvetica Neue", Arial, sans-serif;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-}
-
-/* ============================================================
    顶部 Tab 导航 (OASIS sliding doors 技术真实复刻)
    每个tab用3层嵌套 .top-tab-left → .top-tab-right → .top-tab-center
    3张PNG切片 (左角、右角、中间repeat-x) 拼出梯形tab
@@ -61,16 +27,17 @@ body {
 }
 
 .top-nav {
-    /* 居中 + 限制最大宽度,模仿OASIS两边留白的感觉 */
-    max-width: 1400px;
-    margin: 0 auto;
-    margin-bottom: -1px; /* 关键: 让激活tab"压"在子导航边框上 */
     padding-left: 35px;
-    padding-right: 20px;
-    padding-top: 0;
-    padding-bottom: 0;
+    margin-bottom: -1px; /* 关键: 让激活tab"压"在子导航边框上 */
     position: relative;
     list-style: none;
+    margin-top: 0;
+    margin-right: 0;
+    /* margin-bottom 见上 */
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
 }
 
 .top-nav::after {
@@ -146,10 +113,6 @@ body {
 .tabsection {
     position: relative;
     z-index: 2;
-    /* tabsection 几乎全宽,只留少量边距 - 这是OASIS的特征 */
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 6px; /* 让黄色条比蓝色内容区更宽 */
 }
 .tabsection-top {
     background-image: url(images/tabsection/tabsection.bg.png);
@@ -219,14 +182,10 @@ body {
     border: solid 1px #d3ca8e;
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
-    padding: 8px 14px;
+    padding: 8px 12px;
     color: #473F09;
-    /* 居中 + 与 tabsection 同宽 */
-    max-width: 1400px;
-    margin: 10px auto;
-    /* 用 calc 让两边留 6px,和 tabsection 对齐 */
-    width: calc(100% - 12px);
-    box-sizing: border-box;
+    /* 上 margin 用负值,让它略微"嵌入"上面tabsection的圆角内部 */
+    margin: -3px 8px 10px 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -268,24 +227,21 @@ body {
    核心: 圆角包圆角的层叠效果 + 内阴影
    ============================================================ */
 .main-container {
-    /* 比tabsection更窄 - 模仿OASIS "镶嵌"在圆弧之间的效果 */
-    max-width: 1400px;
-    /* 比tabsection的6px padding再多收紧一些 */
-    margin: 0 auto 12px;
-    padding: 0 16px 0 16px; /* 内边距让蓝色内容区两边比tabsection多缩进 */
-    background: transparent; /* 关键: 外圈不画背景,只让内层section.bg显示 */
-    box-shadow: none;
-    border-radius: 0;
-}
-
-/* 真正的蓝色内容区移到 section-bg 上 */
-.section-bg {
-    background-image: url(images/section.bg.png), url(images/gradient.subtle.png);
-    background-repeat: repeat, repeat-x;
-    background-position: top left, top;
+    margin: 8px;
+    background-image: url(images/section.bg.png);
+    /* 图片缺失时的回退色: OASIS section.bg.png 是淡蓝紫色纹理 */
     background-color: #c8d4ec;
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
+    padding: 0;
+}
+
+.section-bg {
+    background-image: url(images/gradient.subtle.png);
+    background-repeat: repeat-x;
+    background-position: top;
+    /* gradient缺失时不要叠加额外颜色,让上层section.bg显示 */
+    border-radius: 8px;
     padding: 5px;
 }
 
@@ -1043,25 +999,12 @@ body {
         font-size: 13px;
     }
 
-    /* Logo条移动端 */
-    .site-header-inner {
-        padding: 6px 12px;
-        gap: 8px;
-    }
-    .site-logo {
-        height: 28px;
-    }
-    .site-title {
-        font-size: 16px;
-    }
-
     /* 顶部 tabs 在小屏上保持原样,允许换行 */
     .top-nav-wrapper {
         padding: 10px 0 0 0;
     }
     .top-nav {
         padding-left: 8px;
-        padding-right: 8px;
     }
 
     /* 子导航 */
