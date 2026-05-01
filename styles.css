@@ -1,3 +1,10 @@
+/* ============================================================
+   OASIS 风格复刻样式
+   - 顶部 tabs 用真实 sliding doors 技术 (3层嵌套 + 切片PNG)
+   - 步骤框基于 workflow.css 的真实样式
+   - 状态颜色全部对齐 OASIS 原版
+   ============================================================ */
+
 * {
     box-sizing: border-box;
 }
@@ -15,189 +22,260 @@ body {
 }
 
 /* ============================================================
-   顶部Tab导航 (OASIS 复刻风格)
-   关键: 用 clip-path 做真正的梯形/折角形状
+   顶部 Tab 导航 (OASIS sliding doors 技术真实复刻)
+   每个tab用3层嵌套 .top-tab-left → .top-tab-right → .top-tab-center
+   3张PNG切片 (左角、右角、中间repeat-x) 拼出梯形tab
    ============================================================ */
-.top-nav {
+.top-nav-wrapper {
     background: linear-gradient(to bottom, #6b85b8 0%, #4a6fa5 50%, #3d5a8a 100%);
-    padding: 14px 30px 0 30px;
-    border-bottom: 1px solid #c9b870;
+    padding: 14px 0 0 0;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
-    position: relative;
+    border-bottom: 1px solid #c9b870;
 }
 
-.top-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    /* 关键: 让激活tab能"压"在下面子导航的边框上 */
-    margin-bottom: -1px;
+.top-nav {
+    padding-left: 35px;
+    margin-bottom: -1px; /* 关键: 让激活tab"压"在子导航边框上 */
     position: relative;
-    z-index: 2;
+    list-style: none;
+    margin-top: 0;
+    margin-right: 0;
+    /* margin-bottom 见上 */
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+}
+
+.top-nav::after {
+    content: "";
+    display: block;
+    clear: both;
 }
 
 .top-nav li {
-    /* tabs相互重叠15px (像OASIS的-15px margin-left) */
-    margin-left: -14px;
+    float: left;
     position: relative;
-}
-.top-nav li:first-child {
-    margin-left: 0;
+    margin-left: -15px;
+    list-style: none;
 }
 
-/* tab的梯形形状: 用 clip-path 切出折角 */
-.top-nav a {
-    display: inline-block;
-    padding: 6px 22px 7px 22px;
-    background: linear-gradient(to bottom,
-        #fffaba 0%,
-        #fff2a0 40%,
-        #f5e088 100%);
-    color: #5a4a1a;
+/* 第一层: 左角PNG */
+.top-nav .tab-left {
+    background-image: url(images/tabs/tab.left.yellow.png);
+    background-repeat: no-repeat;
+    padding-left: 16px;
+    display: block;
+    cursor: pointer;
+}
+
+/* 第二层: 右角PNG */
+.top-nav .tab-right {
+    background-image: url(images/tabs/tab.right.yellow.png);
+    background-position: right top;
+    background-repeat: no-repeat;
+    padding-right: 16px;
+    display: block;
+}
+
+/* 第三层: 中间背景PNG (横向重复) + 文字 */
+.top-nav .tab-center {
+    background-image: url(images/tabs/tab.bg.yellow.png);
+    background-repeat: repeat-x;
+    height: 17px;
+    line-height: 1.6;
+    padding-left: 4px;
+    padding-right: 4px;
+    color: #000;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: normal;
     font-size: 12px;
-    border: 1px solid #b8a040;
-    border-bottom: none;
-    border-radius: 4px 4px 0 0;
-    position: relative;
-    box-shadow:
-        inset 1px 1px 0 rgba(255,255,255,0.6),
-        0 -1px 1px rgba(0,0,0,0.04);
-    line-height: 1.3;
+    white-space: nowrap;
+    display: block;
 }
 
-/* 用 ::before / ::after 模拟左右下方的折角 */
-.top-nav a::before,
-.top-nav a::after {
-    content: "";
-    position: absolute;
-    bottom: -1px;
-    width: 16px;
-    height: 16px;
-    background: inherit;
-    border-bottom: 1px solid #b8a040;
+/* 激活tab: z-index 高 + 用 selected 版本图片 */
+.top-nav li.active {
+    z-index: 100 !important;
 }
-.top-nav a::before {
-    left: -8px;
-    transform: skewX(-28deg);
-    border-left: 1px solid #b8a040;
-    border-radius: 5px 0 0 0;
+.top-nav li.active .tab-left {
+    background-image: url(images/tabs/tab.left.yellow.selected.png);
 }
-.top-nav a::after {
-    right: -8px;
-    transform: skewX(28deg);
-    border-right: 1px solid #b8a040;
-    border-radius: 0 5px 0 0;
+.top-nav li.active .tab-right {
+    background-image: url(images/tabs/tab.right.yellow.selected.png);
+}
+.top-nav li.active .tab-center {
+    background-image: url(images/tabs/tab.bg.yellow.selected.png);
 }
 
-/* 非激活tab颜色更淡(像OASIS里那些米黄色tabs) */
-.top-nav a:not(.active) {
-    background: linear-gradient(to bottom,
-        #fdf5d0 0%,
-        #f8ecb0 50%,
-        #f0e090 100%);
-    color: #5a4a1a;
-    border-color: #b8a040;
-}
-.top-nav a:not(.active)::before,
-.top-nav a:not(.active)::after {
-    border-color: #b8a040;
-}
-
-.top-nav a:hover {
-    background: linear-gradient(to bottom,
-        #fffadc 0%,
-        #fcf0c0 50%,
-        #f5e8a0 100%);
-}
-
-/* 激活tab: 颜色更鲜艳, z-index更高 */
-.top-nav li:has(a.active),
-.top-nav a.active {
-    z-index: 100;
-}
-.top-nav a.active {
-    background: linear-gradient(to bottom,
-        #fffacc 0%,
-        #fff4a8 50%,
-        #fceb88 100%);
-    color: #3a2a08;
-    border-color: #c9b870;
-    padding: 7px 22px 8px 22px;
-    box-shadow:
-        inset 1px 1px 0 rgba(255,255,255,0.8),
-        0 -2px 3px rgba(0,0,0,0.06);
-}
-.top-nav a.active::before,
-.top-nav a.active::after {
-    border-color: #c9b870;
-}
-
-/* ============= 子导航 ============= */
-.sub-nav {
-    background: linear-gradient(to bottom, #fffacc 0%, #fceb88 100%);
-    padding: 6px 30px;
-    border-top: 1px solid #c9b870;
-    border-bottom: 1px solid #c9b870;
-    font-size: 12px;
-    position: relative;
-    z-index: 1;
-}
-
-.sub-nav a {
-    color: #3a2a08;
+/* hover 略微提亮 */
+.top-nav li:not(.active):hover .tab-center {
+    color: #000;
     text-decoration: none;
-    margin-right: 4px;
-    padding: 2px 6px;
 }
 
-.sub-nav a.active {
+/* ============================================================
+   子导航 (黄色tabsection)
+   ============================================================ */
+.tabsection {
+    position: relative;
+    z-index: 2;
+}
+.tabsection-top {
+    background-image: linear-gradient(to bottom, #fdf9db 0%, #f5e8a8 100%);
+    background-repeat: repeat-x;
+    background-position: center bottom;
+    border-style: solid;
+    border-color: #d3ca8e;
+    border-width: 1px 1px 0 1px;
+    background-color: #fdf9db;
+    margin: 0 2px;
+    padding: 4px 5px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    min-height: 8px;
+}
+
+.toptabs-subtabs {
+    padding: 2px 0 2px 5px;
+}
+
+.toptabs-subtab {
+    color: #333 !important;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1.6;
+}
+.toptabs-subtab.selected {
     font-weight: bold;
     text-decoration: underline;
-    color: #000;
+}
+.toptabs-subtab-seperator {
+    padding: 0 6px;
+    color: #999;
 }
 
-.sub-nav .separator {
-    color: #b8a040;
-    margin: 0 4px;
+.tabsection-bottom-row {
+    display: flex;
+}
+.tabsection-left {
+    background-image: linear-gradient(to bottom, #fdf9db 0%, #fdf9db 100%);
+    background-repeat: no-repeat;
+    background-position: left top;
+    width: 11px;
+    height: 11px;
+    border-left: 1px solid #d3ca8e;
+    border-bottom-left-radius: 8px;
+    border-bottom: 1px solid #d3ca8e;
+}
+.tabsection-right {
+    background-position: right top;
+    background-repeat: no-repeat;
+    width: 11px;
+    height: 11px;
+    border-right: 1px solid #d3ca8e;
+    border-bottom-right-radius: 8px;
+    border-bottom: 1px solid #d3ca8e;
+}
+.tabsection-center {
+    flex: 1;
+    height: 11px;
+    background: #fdf9db;
+    border-bottom: 1px solid #d3ca8e;
 }
 
-/* ============= 主容器 ============= */
+/* ============================================================
+   用户信息条 (仿 student-bar)
+   ============================================================ */
+.user-info-bar {
+    background-color: #f3e9a4;
+    background-image: linear-gradient(to bottom, #f9eebe 0%, #f3e9a4 100%);
+    border: solid 1px #d3ca8e;
+    border-radius: 8px;
+    box-shadow: 4px 4px 4px #dddddd;
+    padding: 8px 12px;
+    color: #473F09;
+    margin: 10px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.user-info-bar .role-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-left: 6px;
+    font-size: 11px;
+}
+
+.role-author { background: #fde8c0; color: #8a5a1a; border: 1px solid #d9a050; }
+.role-operator { background: #d8e8fc; color: #1a4a8a; border: 1px solid #5080d0; }
+.role-leader { background: #f3d8fc; color: #5a1a8a; border: 1px solid #a050d0; }
+.role-member { background: #e8e8e8; color: #555; border: 1px solid #aaa; }
+
+.user-info-bar a {
+    color: #00309C;
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.4);
+}
+.user-info-bar a:hover {
+    background: rgba(255,255,255,0.7);
+    text-decoration: underline;
+}
+
+/* ============================================================
+   Section 容器 (仿 .section/.section-bg/.section-content-wrapper)
+   核心: 圆角包圆角的层叠效果 + 内阴影
+   ============================================================ */
 .main-container {
-    margin: 12px;
-    background: #fff;
-    border: 1px solid #a5b8d4;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin: 8px;
+    background: #f8f8ff;
+    border-radius: 8px;
+    box-shadow: 4px 4px 4px #dddddd;
+    padding: 0;
+}
+
+.section-bg {
+    background-image: linear-gradient(to bottom, #f0f4fa 0%, #e8eef5 30%, #e0e6f0 100%);
+    background-repeat: repeat-x;
+    border-radius: 8px;
+    padding: 5px;
 }
 
 .section-header {
-    background: linear-gradient(to bottom, #d8e2f0 0%, #b8c8e0 100%);
-    padding: 6px 12px;
-    border-bottom: 1px solid #a5b8d4;
-    border-radius: 4px 4px 0 0;
+    margin: 0;
+    padding: 4px 8px;
+    min-height: 20px;
     font-weight: bold;
-    color: #1a3a6e;
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.4em;
+    color: #244872;
 }
-
-.section-header img,
 .section-header .icon {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    margin-right: 6px;
     vertical-align: middle;
+    margin-right: 4px;
 }
 
-/* ============= 页面标题区 ============= */
+.section-content-wrapper {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: inset 0 0 4px #999999;
+    padding: 5px;
+    margin-top: 4px;
+}
+
+/* ============================================================
+   页面标题区
+   ============================================================ */
 .page-title-bar {
-    padding: 16px 20px 12px 20px;
-    border-bottom: 1px solid #e0e6f0;
+    padding: 8px 12px 10px 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -206,135 +284,123 @@ body {
 }
 
 .page-title {
-    font-size: 22px;
-    color: #1a3a6e;
+    margin: 5px;
+    padding: 0;
+    color: #244872;
+    font-size: 23px;
     font-weight: normal;
-    margin: 0;
+    display: inline;
 }
-
 .page-title-sub {
     font-size: 12px;
     color: #666;
     font-style: italic;
-    margin-left: 6px;
+    margin-left: 4px;
 }
 
-/* ============= 按钮 ============= */
+/* ============================================================
+   按钮 (仿 OASIS .big-blue-button + .LinkButton)
+   ============================================================ */
 .btn {
     display: inline-block;
     padding: 6px 14px;
-    background: linear-gradient(to bottom, #e8f0f8 0%, #c8d8ec 100%);
-    color: #1a3a6e;
-    border: 1px solid #6a85b0;
-    border-radius: 4px;
+    background: linear-gradient(to bottom, #f2f9fe 0%, #d6f0fd 100%);
+    color: #00309C;
+    border: 1px solid #bce9ff;
+    border-radius: 3px;
     font-size: 12px;
     cursor: pointer;
     text-decoration: none;
     font-family: Verdana, Arial, sans-serif;
 }
-
 .btn:hover {
-    background: linear-gradient(to bottom, #f0f6fc 0%, #d8e4f4 100%);
+    background: linear-gradient(to bottom, #fcfed5 0%, #fcfed5 100%);
+    text-decoration: none;
 }
-
 .btn:active {
-    background: linear-gradient(to bottom, #c8d8ec 0%, #e8f0f8 100%);
+    background: linear-gradient(to bottom, #d6f0fd 0%, #f2f9fe 100%);
 }
 
 .btn-primary {
-    background: linear-gradient(to bottom, #5a8ec0 0%, #3d6a9e 100%);
-    color: #fff;
-    border-color: #2d4a7a;
+    background: linear-gradient(to bottom, #2ebaed 5%, #378de5 100%);
+    background-color: #2ebaed;
+    border-radius: 6px;
+    color: #ffffff !important;
+    font-size: 14px;
     font-weight: bold;
+    padding: 8px 16px;
+    text-shadow: 0 1px 0 #528ecc;
+    border: none;
 }
-
 .btn-primary:hover {
-    background: linear-gradient(to bottom, #6a9ed0 0%, #4d7aae 100%);
+    background: linear-gradient(to bottom, #0ea4d8 5%, #1e6ec0 100%);
+    text-decoration: none;
 }
 
 .btn-cancel {
     background: linear-gradient(to bottom, #f0f0f0 0%, #d8d8d8 100%);
     color: #555;
-    border-color: #999;
+    border: 1px solid #999;
+    border-radius: 3px;
 }
 
 .btn-icon {
     margin-right: 4px;
-    font-weight: bold;
 }
 
-/* ============= 表单卡片（提交记录） ============= */
+/* ============================================================
+   表单卡片 (.form 仿 OASIS)
+   ============================================================ */
 .form-card {
-    margin: 14px;
-    border: 1px solid #c8d4e8;
-    border-radius: 4px;
-    background: linear-gradient(to bottom, #fafcff 0%, #f0f4fa 100%);
-    padding: 12px 14px;
+    margin: 5px 0 5px 0;
+    padding: 5px 10px 8px;
     position: relative;
-    transition: padding 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    border-bottom: 1px solid #e0e6f0;
+    transition: background 0.25s ease;
+}
+.form-card:last-child {
+    border-bottom: none;
 }
 
-/* 折叠状态：颜色淡很多, 像OASIS"Change of Major"那种淡淡的样子 */
-.form-card:not(.expanded) {
-    padding: 8px 14px;
-    background: linear-gradient(to bottom, #fdfdfa 0%, #f7f5ed 100%);
-    border-color: #e8e4d4;
+.form-card-header {
+    padding: 0;
+    cursor: pointer;
+    user-select: none;
 }
-.form-card:not(.expanded) .form-card-header {
-    margin-bottom: 0;
+.form-card-header h3-equiv {
+    /* 用于 <h3> 等价的样式 */
 }
 
-/* 折叠动画核心:
-   - 默认 .form-card-body 隐藏 (max-height: 0)
-   - 加 .expanded 类后展开
-   - 用CSS transition做平滑动画 */
+/* 折叠/展开动画 */
 .form-card-body {
     overflow: hidden;
     max-height: 0;
     opacity: 0;
-    transition:
-        max-height 0.35s ease,
-        opacity 0.25s ease 0.05s,
-        margin-top 0.25s ease;
-    margin-top: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease 0.05s;
 }
-
 .form-card.expanded .form-card-body {
     max-height: 5000px;
     opacity: 1;
-    margin-top: 0;
-}
-
-/* 三角形旋转动画 */
-.form-card-title .triangle {
-    transition: transform 0.25s ease;
-    display: inline-block;
-}
-
-/* 展开时三角形旋转90度变成▼朝下 */
-.form-card.expanded .form-card-title .triangle {
-    transform: rotate(90deg);
-}
-
-.form-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
 }
 
 .form-card-title {
     color: #d97706;
     font-weight: bold;
     font-size: 13px;
+    line-height: 1.6;
 }
 
 .form-card-title .triangle {
     color: #d97706;
     margin-right: 4px;
-    font-size: 10px;
+    font-size: 11px;
+    display: inline-block;
+    transition: transform 0.25s ease;
+    width: 12px;
+    text-align: center;
+}
+.form-card.expanded .form-card-title .triangle {
+    transform: rotate(90deg);
 }
 
 .form-card-title .sub {
@@ -342,45 +408,67 @@ body {
     font-weight: normal;
 }
 
-/* 折叠状态时,三角形和文字稍微沉静一些 */
+/* 折叠状态下颜色变淡 */
 .form-card:not(.expanded) .form-card-title {
     color: #b8651f;
 }
 .form-card:not(.expanded) .form-card-title .triangle {
-    color: #6a85b0;
+    color: #888;
 }
 .form-card:not(.expanded) .form-card-title .sub {
     color: #888;
+}
+
+/* status标签 (仿 .status-summary) */
+.form-card-status {
+    float: right;
+    font-weight: bold;
     font-size: 12px;
-}
-}
-
-.status-in-progress {
-    color: #d97706;
+    margin-left: 8px;
 }
 
-.status-approved {
-    color: #2d8a3e;
+.status-in-progress, .status-color-InProgress { color: #FF7800; }
+.status-approved,    .status-color-Approved   { color: #008000; }
+.status-rejected,    .status-color-Denied     { color: #CC0000; }
+.status-cancelled,   .status-color-Cancelled  { color: #666666; }
+
+.form-card-cancel {
+    float: right;
+    margin-right: 4px;
 }
 
-.status-rejected {
-    color: #b03030;
-}
-
-/* ============= 流程步骤展示 ============= */
+/* ============================================================
+   流程图 (仿 OASIS workflow.css)
+   核心: stage 外层 + step 内层 + 图标浮在框左上
+   ============================================================ */
 .flow-row {
     display: flex;
     align-items: stretch;
     flex-wrap: wrap;
     gap: 0;
     margin-top: 6px;
+    border-spacing: 0;
 }
 
 .flow-step {
     flex: 0 0 auto;
-    min-width: 180px;
-    max-width: 240px;
+    min-width: 200px;
+    max-width: 260px;
+    padding: 5px 8px 10px 8px;
+    border-radius: 5px;
     margin-bottom: 10px;
+    /* stage 默认 */
+}
+
+/* stage 当前激活: 橙色背景 (仿 .stage-active) */
+.flow-step.stage-active {
+    border: 1px solid #ffda5b;
+    background-color: #fff7df;
+}
+
+/* stage 未来步骤: 灰色 (仿 .stage-future) */
+.flow-step.stage-future {
+    /* 没有边框,只是颜色淡 */
 }
 
 .flow-step-label {
@@ -388,166 +476,143 @@ body {
     font-size: 12px;
     color: #333;
     margin-bottom: 4px;
+    margin-top: 0;
 }
 
+/* step 内框: OASIS的 .step */
 .flow-step-box {
-    border: 1px solid #c8d4e8;
-    border-radius: 4px;
-    background: #fff;
-    padding: 8px 10px;
-    min-height: 64px;
+    border: solid 1px #c2d3e6;
+    background-color: #dfffe1;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 15px;
     position: relative;
+    box-shadow: 4px 4px 4px #DDDDDD;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 30%);
+    min-height: 50px;
 }
 
-.flow-step-box.submitted {
-    background: linear-gradient(to bottom, #e8f5e8 0%, #d8efd8 100%);
-    border-color: #8ac88a;
-}
-
-.flow-step-box.pending-current {
-    background: linear-gradient(to bottom, #fff8d8 0%, #fbeeb0 100%);
-    border: 2px solid #d97706;
-    padding: 7px 9px;
-}
-
-.flow-step-box.pending {
-    background: linear-gradient(to bottom, #f8f8f8 0%, #ececec 100%);
-    border-color: #ccc;
-    color: #777;
-}
-
-.flow-step-box.rejected {
-    background: linear-gradient(to bottom, #fae8e8 0%, #f0d4d4 100%);
-    border-color: #c88a8a;
-}
-
+/* step 状态图标: 浮在框左上,白底盖住边框 (仿 .step .step-status > i) */
 .flow-checkbox {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    margin-bottom: 4px;
-    border: 1px solid #888;
-    background: #fff;
-    vertical-align: middle;
+    font-size: 21px;
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background-color: white;
+    line-height: 20px;
+    padding: 0 2px;
+    width: 24px;
+    height: 24px;
     text-align: center;
-    line-height: 16px;
-    font-size: 14px;
-    border-radius: 2px;
-}
-
-.flow-checkbox.checked {
-    background: #2d8a3e;
-    color: #fff;
-    border-color: #1d6a2e;
+    border-radius: 3px;
     font-weight: bold;
 }
 
+/* 已完成: 绿色勾 */
+.flow-checkbox.checked {
+    color: #008000;
+}
+.flow-step-box.submitted {
+    background-color: #dfffe1;
+    border-color: #8ac88a;
+}
+
+/* 进行中(当前): 橙色空心方框 */
 .flow-checkbox.checked-orange {
-    background: transparent;
-    border: 2px solid #d97706;
+    color: #FF7800;
+    border: 2px solid #FF7800;
+    background: white;
+}
+.flow-step-box.pending-current {
+    background-color: #fff7df;
+    border: 1px solid #ffda5b;
+}
+
+/* 未来步骤: 灰色虚线 */
+.flow-step-box.pending {
+    border-style: dashed;
+    background-color: #dedede;
+    border-color: #aaaaaa;
+}
+.flow-step-box.pending .flow-step-detail {
+    color: #666;
+}
+
+/* 否决: 红色 */
+.flow-step-box.rejected {
+    background-color: #ffe7e7;
+    border-color: #c88a8a;
+}
+.flow-checkbox.rejected-x {
+    color: #CC0000;
 }
 
 .flow-step-detail {
     font-size: 11px;
     line-height: 1.5;
+    margin-top: 5px;
 }
-
 .flow-step-detail .main-line {
     font-weight: bold;
     color: #333;
 }
-
 .flow-step-detail .sub-line {
     color: #666;
     font-size: 11px;
 }
-
 .flow-step-detail .pending-text {
-    color: #d97706;
+    color: #FF7800;
     font-weight: normal;
 }
-
 .flow-step-detail .approved-text {
-    color: #2d8a3e;
+    color: #008000;
 }
-
 .flow-step-detail .rejected-text {
-    color: #b03030;
+    color: #CC0000;
 }
 
 .flow-arrow {
     flex: 0 0 auto;
     align-self: center;
-    font-size: 28px;
+    font-size: 40px;
+    padding: 20px 5px 0 5px;
     color: #333;
-    padding: 0 6px;
     line-height: 1;
-    margin-top: 18px;
 }
 
-.form-card-actions {
-    margin-top: 12px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.form-card-cancel {
-    position: absolute;
-    top: 10px;
-    right: 14px;
-}
-
-/* 折叠时取消按钮跟着上移、变小 */
-.form-card:not(.expanded) .form-card-cancel {
-    top: 3px;
-    right: 8px;
-    padding: 2px 8px;
-    font-size: 11px;
-}
-
-.form-card-status {
-    font-weight: bold;
-    font-size: 12px;
-    margin-right: 8px;
-    white-space: nowrap;
-}
-
-.form-card.has-cancel .form-card-header {
-    padding-right: 80px;
-}
-.form-card:not(.expanded).has-cancel .form-card-header {
-    padding-right: 70px;
-}
-
-/* ============= 登录页 ============= */
+/* ============================================================
+   登录页
+   ============================================================ */
 .login-wrapper {
     max-width: 460px;
     margin: 60px auto;
-    background: #fff;
-    border: 1px solid #a5b8d4;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    background: #f8f8ff;
+    border-radius: 8px;
+    box-shadow: 4px 4px 4px #dddddd;
+    padding: 5px;
+    background-image: linear-gradient(to bottom, #f0f4fa 0%, #e8eef5 30%, #e0e6f0 100%);
 }
 
 .login-header {
-    background: linear-gradient(to bottom, #d8e2f0 0%, #b8c8e0 100%);
-    padding: 8px 14px;
-    border-bottom: 1px solid #a5b8d4;
-    border-radius: 4px 4px 0 0;
+    padding: 4px 8px;
     font-weight: bold;
-    color: #1a3a6e;
+    color: #244872;
+    font-size: 11px;
 }
 
 .login-body {
-    padding: 24px 30px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: inset 0 0 4px #999999;
+    padding: 22px 28px;
 }
 
 .login-title {
-    font-size: 22px;
-    color: #1a3a6e;
-    font-weight: normal;
     margin: 0 0 4px 0;
+    padding: 0;
+    color: #244872;
+    font-size: 23px;
+    font-weight: normal;
 }
 
 .login-subtitle {
@@ -577,8 +642,13 @@ body {
     padding: 4px 6px;
     font-family: Verdana, Arial, sans-serif;
     font-size: 12px;
-    border: 1px solid #999;
+    border: 1px solid #A6C9E2;
     background: #fff;
+    border-radius: 3px;
+}
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    border-color: #ffcd77;
+    outline: none;
 }
 
 .form-row textarea {
@@ -587,9 +657,9 @@ body {
 }
 
 .login-error {
-    color: #b03030;
-    background: #fae8e8;
-    border: 1px solid #c88a8a;
+    color: #cc0000;
+    background: #fff7df;
+    border: 1px solid #ffda5b;
     padding: 6px 10px;
     margin-bottom: 12px;
     font-size: 12px;
@@ -610,15 +680,16 @@ body {
     line-height: 1.5;
 }
 
-/* ============= 提交新表单页 ============= */
+/* ============================================================
+   提交新表单页
+   ============================================================ */
 .submit-form-wrapper {
-    margin: 14px;
-    padding: 18px 24px;
+    padding: 14px 18px;
 }
 
 .submit-form-wrapper h3 {
-    font-size: 16px;
-    color: #1a3a6e;
+    font-size: 15px;
+    color: #244872;
     font-weight: bold;
     margin: 18px 0 8px 0;
     border-bottom: 1px solid #d8e2f0;
@@ -632,7 +703,7 @@ body {
 .checkbox-group label {
     font-weight: normal;
     display: block;
-    padding: 3px 0;
+    padding: 4px 0;
     cursor: pointer;
 }
 
@@ -648,19 +719,21 @@ body {
     font-style: italic;
 }
 
-/* ============= 投票区域 ============= */
+/* ============================================================
+   投票区域
+   ============================================================ */
 .vote-section {
     margin-top: 14px;
-    padding: 12px;
-    background: #fff;
+    padding: 10px;
+    background: #fafcff;
     border: 1px solid #c8d4e8;
     border-radius: 4px;
 }
 
 .vote-section-title {
     font-weight: bold;
-    color: #1a3a6e;
-    margin-bottom: 10px;
+    color: #244872;
+    margin-bottom: 8px;
     font-size: 12px;
 }
 
@@ -673,7 +746,6 @@ body {
     background: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 2px;
-    position: relative;
     overflow: hidden;
 }
 
@@ -706,42 +778,40 @@ body {
 }
 
 .btn-vote-approve {
-    background: linear-gradient(to bottom, #d4eed4 0%, #a8d8a8 100%);
-    border-color: #5aa85a;
-    color: #1d5a1d;
+    background: linear-gradient(to bottom, #def8e6 0%, #def8e6 50%, #d0f5d5 51%, #def8e6 76%, #def8e6 100%);
+    border: 1px solid #5aa85a;
+    color: #008000;
 }
-
 .btn-vote-approve:hover {
-    background: linear-gradient(to bottom, #e0f4e0 0%, #b8e0b8 100%);
+    background: linear-gradient(to bottom, #e8fce8 0%, #d8f8d8 100%);
 }
 
 .btn-vote-reject {
-    background: linear-gradient(to bottom, #f0d8d8 0%, #d8a8a8 100%);
-    border-color: #a85a5a;
-    color: #5a1d1d;
+    background: linear-gradient(to bottom, #ffe5e5 0%, #ffe5e5 50%, #fcd9d9 51%, #ffe5e5 76%, #ffe5e5 100%);
+    border: 1px solid #a85a5a;
+    color: #CC0000;
 }
-
 .btn-vote-reject:hover {
-    background: linear-gradient(to bottom, #f8e0e0 0%, #e0b8b8 100%);
+    background: linear-gradient(to bottom, #fff0f0 0%, #fcd9d9 100%);
 }
 
 .voted-tag {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 3px;
     font-size: 11px;
     font-weight: bold;
 }
 
 .voted-tag.approve {
-    background: #d4eed4;
-    color: #1d5a1d;
+    background: #def8e6;
+    color: #008000;
     border: 1px solid #5aa85a;
 }
 
 .voted-tag.reject {
-    background: #f0d8d8;
-    color: #5a1d1d;
+    background: #ffe5e5;
+    color: #CC0000;
     border: 1px solid #a85a5a;
 }
 
@@ -750,33 +820,15 @@ body {
     font-size: 11px;
     border-top: 1px dotted #ccc;
     padding-top: 8px;
-}
-
-.vote-detail-list .voter {
-    display: inline-block;
-    margin-right: 8px;
-    margin-bottom: 4px;
-    padding: 2px 6px;
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 2px;
-}
-
-.vote-detail-list .voter.approve {
-    background: #ecf8ec;
-    border-color: #b8d8b8;
-}
-
-.vote-detail-list .voter.reject {
-    background: #f8ecec;
-    border-color: #d8b8b8;
+    color: #555;
 }
 
 .content-body {
-    background: #fafafa;
-    border: 1px dashed #ccc;
-    padding: 8px 10px;
-    margin: 6px 0;
+    background: #ffffed;
+    border: 1px dashed #DDDDDD;
+    border-width: 1px 0;
+    padding: 6px 8px;
+    margin: 8px 0;
     font-size: 11px;
     max-height: 150px;
     overflow-y: auto;
@@ -786,8 +838,8 @@ body {
 
 .platform-tag {
     display: inline-block;
-    padding: 1px 6px;
-    border-radius: 2px;
+    padding: 2px 8px;
+    border-radius: 3px;
     font-size: 11px;
     font-weight: bold;
     margin-right: 4px;
@@ -804,105 +856,58 @@ body {
     font-style: italic;
 }
 
-.user-info-bar {
-    background: linear-gradient(to bottom, #fff8d0 0%, #f5e8a8 100%);
-    padding: 6px 14px;
-    border-bottom: 1px solid #c9b870;
-    font-size: 11px;
-    color: #5a4a1a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+/* ============================================================
+   清除浮动 helper
+   ============================================================ */
+.clearfix::after {
+    content: "";
+    display: block;
+    clear: both;
 }
 
-.user-info-bar .role-tag {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 2px;
-    font-weight: bold;
-    margin-left: 4px;
-}
-
-.role-author { background: #fde8c0; color: #8a5a1a; border: 1px solid #d9a050; }
-.role-operator { background: #d8e8fc; color: #1a4a8a; border: 1px solid #5080d0; }
-.role-leader { background: #f3d8fc; color: #5a1a8a; border: 1px solid #a050d0; }
-.role-member { background: #e8e8e8; color: #555; border: 1px solid #aaa; }
-
-/* 折叠交互：让三角形和标题可点击 */
-.form-card-title .clickable {
-    cursor: pointer;
-    user-select: none;
-}
-.form-card-title .clickable:hover {
-    opacity: 0.7;
-}
-.form-card-title .triangle.clickable {
-    display: inline-block;
-    width: 14px;
-    text-align: center;
-    transition: transform 0.1s;
-}
-
-/* ====================================================================
-   移动端适配（< 700px）：完整重写以适配触屏 + 小屏
-   ==================================================================== */
+/* ============================================================
+   移动端适配
+   ============================================================ */
 @media (max-width: 700px) {
     body {
         font-size: 13px;
     }
 
-    /* ----- 顶部Tab：放大点击区域 ----- */
+    /* 顶部 tabs 在小屏上保持原样,允许换行 */
+    .top-nav-wrapper {
+        padding: 10px 0 0 0;
+    }
     .top-nav {
-        padding: 10px 4px 0 4px;
-    }
-    .top-nav ul {
-        gap: 2px;
-    }
-    .top-nav a {
-        padding: 9px 12px;
-        font-size: 13px;
-        border-radius: 8px 8px 0 0;
+        padding-left: 8px;
     }
 
-    /* ----- 子导航：手机端隐藏(顶部tab已有相同入口) ----- */
-    .sub-nav {
-        display: none;
+    /* 子导航 */
+    .tabsection-top {
+        margin: 0 2px;
+        padding: 4px 8px;
     }
 
-    /* ----- 用户信息条 ----- */
+    /* 用户信息条 */
     .user-info-bar {
-        padding: 8px 12px;
+        margin: 8px 4px;
+        padding: 8px 10px;
         font-size: 12px;
     }
-    .user-info-bar a {
-        padding: 4px 8px;
-        background: rgba(255,255,255,0.5);
-        border-radius: 3px;
-        text-decoration: none;
-        color: #5a4a1a;
-        font-weight: bold;
-    }
 
-    /* ----- 主容器:撑满屏幕 ----- */
+    /* 主容器 */
     .main-container {
-        margin: 6px;
-        border-radius: 6px;
+        margin: 4px;
+    }
+    .section-bg {
+        padding: 4px;
     }
 
-    .section-header {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-
-    /* ----- 页面标题区 ----- */
+    /* 页面标题 */
     .page-title-bar {
-        padding: 14px 14px 12px 14px;
-        gap: 12px;
+        padding: 8px 8px;
     }
     .page-title {
-        font-size: 20px;
+        font-size: 19px;
     }
     .page-title-sub {
         display: block;
@@ -910,130 +915,61 @@ body {
         margin-top: 2px;
         font-size: 11px;
     }
-    .page-title-bar .btn {
+    .page-title-bar .btn-primary {
         width: 100%;
         text-align: center;
-        padding: 10px;
-        font-size: 14px;
     }
 
-    /* ----- 卡片 ----- */
+    /* 卡片 */
     .form-card {
-        margin: 8px 6px;
-        padding: 12px;
-        border-radius: 6px;
-    }
-    .form-card:not(.expanded) {
-        padding: 8px 12px;
-    }
-
-    .form-card-header {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 6px;
+        padding: 8px 6px;
     }
     .form-card-title {
         font-size: 14px;
-        flex: 1;
-        line-height: 1.4;
     }
     .form-card-title .sub {
         display: block;
-        font-size: 11px;
         margin-top: 2px;
-    }
-
-    /* ----- 取消按钮 ----- */
-    .form-card-cancel {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        padding: 4px 10px;
         font-size: 11px;
     }
-    .form-card:not(.expanded) .form-card-cancel {
-        top: 5px;
-        right: 6px;
-        padding: 3px 8px;
-        font-size: 11px;
-    }
-    .form-card.has-cancel .form-card-header {
-        padding-right: 70px;
-    }
-    .form-card:not(.expanded).has-cancel .form-card-header {
-        padding-right: 65px;
-    }
-
-    /* ----- 状态文字 ----- */
     .form-card-status {
         font-size: 11px;
-        margin-right: 6px;
+    }
+    .form-card-cancel {
+        font-size: 11px;
+        padding: 3px 8px;
     }
 
-    /* ----- 流程图: 竖向, 箭头变成向下 ----- */
+    /* 流程图竖向 + 箭头旋转 (workflow.css 的手机端规则) */
     .flow-row {
         flex-direction: column;
         align-items: stretch;
-        gap: 0;
-        margin-top: 8px;
     }
     .flow-step {
         max-width: none;
         width: 100%;
-        margin-bottom: 4px;
-    }
-    .flow-step-label {
-        font-size: 12px;
-        margin-bottom: 3px;
-    }
-    .flow-step-box {
-        padding: 9px 11px;
-        min-height: auto;
-    }
-    .flow-step-detail {
-        font-size: 12px;
-    }
-    .flow-step-detail .sub-line {
-        font-size: 11px;
+        margin-bottom: 8px;
     }
     .flow-arrow {
-        transform: rotate(90deg);
-        margin: 2px auto;
-        font-size: 18px;
+        text-align: center;
         padding: 0;
+        margin: 4px auto;
+        font-size: 28px;
+        transform: rotate(90deg);
         align-self: center;
     }
 
-    /* ----- 内容描述 ----- */
+    /* 内容描述 */
     .content-body {
         font-size: 12px;
-        padding: 8px 10px;
-        max-height: 120px;
     }
 
-    /* ----- 投票区域 ----- */
+    /* 投票区域 */
     .vote-section {
-        margin-top: 10px;
-        padding: 10px;
-    }
-    .vote-section-title {
-        font-size: 12px;
-        margin-bottom: 8px;
+        padding: 8px;
     }
     .vote-bar-track {
         height: 22px;
-    }
-    .vote-bar-info {
-        font-size: 11px;
-    }
-    .vote-detail-list {
-        font-size: 11px;
-    }
-
-    /* ----- 投票按钮: 大且易点 ----- */
-    .vote-actions {
-        gap: 6px;
-        margin-top: 12px;
     }
     .vote-actions .btn {
         flex: 1;
@@ -1042,17 +978,13 @@ body {
         font-size: 13px;
         text-align: center;
     }
-    .voted-tag {
-        font-size: 11px;
-        padding: 4px 10px;
-    }
 
-    /* ----- 登录页 ----- */
+    /* 登录页 */
     .login-wrapper {
         margin: 16px 8px;
     }
     .login-body {
-        padding: 18px 16px;
+        padding: 16px;
     }
     .login-title {
         font-size: 19px;
@@ -1063,16 +995,28 @@ body {
         font-size: 15px;
     }
 
-    /* ----- 提交表单 ----- */
+    /* 表单输入 - iOS防放大需要≥16px */
+    .form-row input[type="text"],
+    .form-row input[type="password"],
+    .form-row select,
+    .form-row textarea {
+        font-size: 16px;
+        padding: 10px 8px;
+    }
+    .form-row textarea {
+        min-height: 120px;
+    }
+
+    /* 提交表单 */
     .submit-form-wrapper {
-        padding: 14px 12px;
+        padding: 12px 10px;
     }
     .submit-form-wrapper h3 {
-        font-size: 15px;
-        margin: 14px 0 6px 0;
+        font-size: 14px;
     }
-    .form-row {
-        margin-bottom: 12px;
+    .submit-form-wrapper .btn {
+        padding: 11px 18px;
+        font-size: 14px;
     }
     .checkbox-group label {
         padding: 8px 0;
@@ -1081,61 +1025,17 @@ body {
         width: 18px;
         height: 18px;
     }
-    .submit-form-wrapper .btn {
-        padding: 11px 18px;
-        font-size: 14px;
-    }
-
-    /* ===== iOS输入框聚焦不放大: 字体必须 ≥ 16px ===== */
-    .form-row input[type="text"],
-    .form-row input[type="password"],
-    .form-row select,
-    .form-row textarea,
-    .submit-form-wrapper select {
-        font-size: 16px;
-        padding: 10px 8px;
-    }
-    .form-row textarea {
-        min-height: 120px;
-    }
-
-    .help-text {
-        font-size: 12px;
-    }
-
-    /* ----- 折叠三角形: 更大点击区 ----- */
-    .form-card-title .triangle.clickable {
-        width: 20px;
-        font-size: 12px;
-        padding: 2px 0;
-    }
-    .form-card-title .clickable {
-        padding: 2px 0;
-    }
-
-    .user-info-bar .role-tag {
-        font-size: 11px;
-        padding: 2px 8px;
-    }
-
-    .platform-tag {
-        font-size: 12px;
-        padding: 3px 8px;
-    }
 }
 
-/* ===== 极小屏(<380px)进一步压缩 ===== */
+/* ===== 极小屏 ===== */
 @media (max-width: 380px) {
-    .top-nav a {
-        padding: 8px 9px;
-        font-size: 12px;
+    .top-nav .tab-center {
+        padding-left: 2px;
+        padding-right: 2px;
+        font-size: 11px;
     }
     .form-card {
-        margin: 6px 4px;
-        padding: 10px;
-    }
-    .form-card-title {
-        font-size: 13px;
+        padding: 6px 4px;
     }
     .page-title {
         font-size: 18px;
