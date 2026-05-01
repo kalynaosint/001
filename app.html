@@ -5,28 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>内容协调投票系统</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
-<!-- 顶部Tab导航 -->
-<div class="top-nav">
-    <ul>
-        <li><a href="#" data-tab="myforms" class="active">我的请求</a></li>
-        <li><a href="#" data-tab="submit">提交新请求</a></li>
-        <li><a href="#" data-tab="all">全部请求</a></li>
-        <li><a href="#" data-tab="rules">规则说明</a></li>
+<!-- 顶部Tab导航 (OASIS sliding doors 结构) -->
+<div class="top-nav-wrapper">
+    <ul class="top-nav">
+        <li class="active" data-tab="myforms">
+            <span class="tab-left"><span class="tab-right"><a class="tab-center" href="#">我的请求</a></span></span>
+        </li>
+        <li data-tab="submit">
+            <span class="tab-left"><span class="tab-right"><a class="tab-center" href="#">提交新请求</a></span></span>
+        </li>
+        <li data-tab="all">
+            <span class="tab-left"><span class="tab-right"><a class="tab-center" href="#">全部请求</a></span></span>
+        </li>
+        <li data-tab="rules">
+            <span class="tab-left"><span class="tab-right"><a class="tab-center" href="#">规则说明</a></span></span>
+        </li>
     </ul>
 </div>
 
-<!-- 子导航 -->
-<div class="sub-nav">
-    <a href="#" data-subtab="myforms" class="active">我的请求</a>
-    <span class="separator">|</span>
-    <a href="#" data-subtab="submit">提交新请求</a>
-    <span class="separator">|</span>
-    <a href="#" data-subtab="rules">规则说明</a>
+<!-- 子导航 (黄色tabsection风格) -->
+<div class="tabsection">
+    <div class="tabsection-top">
+        <div class="toptabs-subtabs">
+            <a href="#" data-subtab="myforms" class="toptabs-subtab selected">我的请求</a>
+            <span class="toptabs-subtab-seperator">|</span>
+            <a href="#" data-subtab="submit" class="toptabs-subtab">提交新请求</a>
+            <span class="toptabs-subtab-seperator">|</span>
+            <a href="#" data-subtab="rules" class="toptabs-subtab">规则说明</a>
+        </div>
+    </div>
+    <div class="tabsection-bottom-row">
+        <div class="tabsection-left"></div>
+        <div class="tabsection-center"></div>
+        <div class="tabsection-right"></div>
+    </div>
 </div>
 
 <!-- 用户信息条 -->
@@ -193,14 +208,13 @@ let currentTab = "myforms";
 function switchView(tabName) {
     currentTab = tabName;
 
-    // 顶部tab高亮
-    document.querySelectorAll(".top-nav a").forEach(a => {
-        a.classList.toggle("active", a.dataset.tab === tabName ||
-            (tabName === "all" && a.dataset.tab === "all"));
+    // 顶部tab高亮 (li.active)
+    document.querySelectorAll(".top-nav li").forEach(li => {
+        li.classList.toggle("active", li.dataset.tab === tabName);
     });
-    // 子导航高亮
-    document.querySelectorAll(".sub-nav a").forEach(a => {
-        a.classList.toggle("active", a.dataset.subtab === tabName);
+    // 子导航高亮 (selected)
+    document.querySelectorAll(".toptabs-subtab").forEach(a => {
+        a.classList.toggle("selected", a.dataset.subtab === tabName);
     });
 
     // 视图切换
@@ -223,13 +237,15 @@ function switchView(tabName) {
     }
 }
 
-document.querySelectorAll(".top-nav a").forEach(a => {
-    a.addEventListener("click", function(e) {
+// 顶部tab点击 (li上有 data-tab)
+document.querySelectorAll(".top-nav li").forEach(li => {
+    li.addEventListener("click", function(e) {
         e.preventDefault();
         switchView(this.dataset.tab);
     });
 });
-document.querySelectorAll(".sub-nav a").forEach(a => {
+// 子导航点击
+document.querySelectorAll(".toptabs-subtab").forEach(a => {
     a.addEventListener("click", function(e) {
         e.preventDefault();
         switchView(this.dataset.subtab);
