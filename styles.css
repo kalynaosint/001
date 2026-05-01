@@ -18,8 +18,9 @@ body {
 .top-nav {
     background: linear-gradient(to bottom, #6b85b8 0%, #4a6fa5 50%, #3d5a8a 100%);
     padding: 14px 0 0 20px;
-    border-bottom: 1px solid #2d4a7a;
+    border-bottom: 1px solid #c9b870; /* 改成黄色边框,与子导航连成一体 */
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    position: relative;
 }
 
 .top-nav ul {
@@ -28,33 +29,49 @@ body {
     padding: 0;
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-end;
 }
 
 .top-nav li {
-    margin-right: 2px;
+    margin-right: 4px;
+    position: relative;
 }
 
 .top-nav a {
     display: inline-block;
-    padding: 6px 14px;
-    background: linear-gradient(to bottom, #c8d4e8 0%, #a5b8d4 100%);
+    padding: 7px 18px 8px 18px;
+    background: linear-gradient(to bottom, #d8e2f0 0%, #b8c8e0 50%, #a5b8d4 100%);
     color: #1a3a6e;
     text-decoration: none;
     border: 1px solid #6a85b0;
     border-bottom: none;
-    border-radius: 6px 6px 0 0;
+    /* 上面圆角大,下面没有圆角 -> 像悬挂的标签 */
+    border-radius: 10px 10px 0 0;
     font-weight: bold;
     font-size: 12px;
+    position: relative;
+    /* 标签左右上方一点点立体感 */
+    box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,0.4),
+        0 -1px 2px rgba(0,0,0,0.05);
 }
 
 .top-nav a:hover {
-    background: linear-gradient(to bottom, #d8e2f0 0%, #b8c8e0 100%);
+    background: linear-gradient(to bottom, #e8f0fa 0%, #c8d8ec 50%, #b8c8e0 100%);
 }
 
+/* 激活的tab：黄色,底部边框消失,与下方子导航融为一体 */
 .top-nav a.active {
-    background: linear-gradient(to bottom, #fff8d0 0%, #ffeea0 100%);
+    background: linear-gradient(to bottom, #fff8d0 0%, #fbeeb0 50%, #f5e8a8 100%);
     color: #5a4a1a;
     border-color: #c9b870;
+    /* 关键：底部多1px让它"压"在子导航的边框上 */
+    margin-bottom: -1px;
+    padding-bottom: 9px;
+    z-index: 2;
+    box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,0.6),
+        0 -1px 2px rgba(0,0,0,0.05);
 }
 
 /* ============= 子导航 ============= */
@@ -62,7 +79,11 @@ body {
     background: linear-gradient(to bottom, #fff8d0 0%, #f5e8a8 100%);
     padding: 8px 20px;
     border-bottom: 1px solid #c9b870;
+    /* 顶部不要边框,这样和active tab的连接处看起来是"流"过来的 */
+    border-top: none;
     font-size: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 .sub-nav a {
@@ -187,12 +208,50 @@ body {
     background: linear-gradient(to bottom, #fafcff 0%, #f0f4fa 100%);
     padding: 12px 14px;
     position: relative;
+    /* 折叠/展开过渡动画 */
+    transition: padding 0.25s ease, background 0.25s ease, border-color 0.25s ease;
 }
+
+/* 折叠状态：颜色淡很多, 几乎透明的米白 */
 .form-card:not(.expanded) {
-    padding: 6px 14px;
+    padding: 8px 14px;
+    background: linear-gradient(to bottom, #fdfdfa 0%, #f7f5ed 100%);
+    border-color: #e8e4d4;
 }
 .form-card:not(.expanded) .form-card-header {
     margin-bottom: 0;
+}
+
+/* 折叠动画核心:
+   - 默认 .form-card-body 隐藏 (max-height: 0)
+   - 加 .expanded 类后展开 (max-height够大覆盖全部内容)
+   - 用CSS transition做平滑动画 */
+.form-card-body {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition:
+        max-height 0.35s ease,
+        opacity 0.25s ease 0.05s,
+        margin-top 0.25s ease;
+    margin-top: 0;
+}
+
+.form-card.expanded .form-card-body {
+    max-height: 5000px;  /* 足够大,覆盖任何内容高度 */
+    opacity: 1;
+    margin-top: 0;
+}
+
+/* 三角形旋转动画 */
+.form-card-title .triangle {
+    transition: transform 0.25s ease;
+    display: inline-block;
+}
+
+/* 展开时三角形旋转90度变成▼朝下 */
+.form-card.expanded .form-card-title .triangle {
+    transform: rotate(90deg);
 }
 
 .form-card-header {
@@ -219,6 +278,18 @@ body {
 .form-card-title .sub {
     color: #d97706;
     font-weight: normal;
+}
+
+/* 折叠状态时,三角形和文字稍微沉静一些 */
+.form-card:not(.expanded) .form-card-title {
+    color: #b8651f;
+}
+.form-card:not(.expanded) .form-card-title .triangle {
+    color: #6a85b0;
+}
+.form-card:not(.expanded) .form-card-title .sub {
+    color: #888;
+    font-size: 12px;
 }
 
 .status-in-progress {
