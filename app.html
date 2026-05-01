@@ -59,9 +59,11 @@
 
 <!-- 主容器 -->
 <div class="main-container">
-    <div class="section-header">
-        <img class="icon" src="images/icons/clipboard-invoice.png" alt="" onerror="this.outerHTML='&lt;span class=&quot;icon&quot;&gt;📋&lt;/span&gt;'"><span id="sectionHeaderText">内容协调请求</span>
-    </div>
+    <div class="section-bg">
+        <div class="section-header">
+            <img class="icon" src="images/icons/clipboard-invoice.png" alt="" onerror="this.outerHTML='&lt;span class=&quot;icon&quot;&gt;📋&lt;/span&gt;'"><span id="sectionHeaderText">内容协调请求</span>
+        </div>
+        <div class="section-content-wrapper">
 
     <!-- ==================== 视图 1：我的请求 / 全部请求 ==================== -->
     <div id="view-myforms" class="view">
@@ -170,7 +172,9 @@
             <p class="help-text">本系统使用 localStorage 存储数据，数据仅保存在你自己的浏览器中。要让小组成员真正协作投票，需要切换到云端存储（详见 README.md）。</p>
         </div>
     </div>
-</div>
+        </div><!-- /.section-content-wrapper -->
+    </div><!-- /.section-bg -->
+</div><!-- /.main-container -->
 
 <script src="config.js"></script>
 <script src="app.js"></script>
