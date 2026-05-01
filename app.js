@@ -62,7 +62,19 @@ function loadRequests() {
 
 function saveRequests(requests) {
     const obj = {};
-    requests.forEach(r => obj[r.id] = r);
+    requests.forEach(r => {
+        // 深拷贝
+        const copy = JSON.parse(JSON.stringify(r));
+        // 确保 steps 存在且每个 step 的 votes 不为空数组
+        if (copy.steps) {
+            Object.keys(copy.steps).forEach(k => {
+                if (!copy.steps[k].votes || copy.steps[k].votes.length === 0) {
+                    copy.steps[k].votes = { _placeholder: true };
+                }
+            });
+        }
+        obj[r.id] = copy;
+    });
     requestsRef.set(obj);
 }
 
