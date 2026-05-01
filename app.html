@@ -2,11 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>内容协调投票系统</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
@@ -330,8 +328,14 @@ function renderRequestList(showAll) {
     container.querySelectorAll("[data-toggle]").forEach(el => {
         el.addEventListener("click", function(e) {
             e.stopPropagation();
-            toggleCollapsed(this.dataset.toggle);
-            renderRequestList(showAll);
+            const reqId = this.dataset.toggle;
+            toggleCollapsed(reqId);
+            // 只切换当前卡片的expanded class,不重新渲染整个列表
+            // 这样CSS的transition才能正常播放动画
+            const card = this.closest(".form-card");
+            if (card) {
+                card.classList.toggle("expanded");
+            }
         });
     });
 
@@ -404,7 +408,8 @@ function renderRequestCard(req) {
     const nextDeadline = getNextDeadline(req);
     const timeText = nextDeadline ? formatRemaining(nextDeadline) : "投票已结束";
     const collapsed = isCollapsed(req.id);
-    const triangle = collapsed ? "▶" : "▼";
+    // 三角形统一为 ▶,展开时通过CSS旋转90度变成 ▼
+    const triangle = "▶";
 
     const ownResult = computeVoteResult(req, "ownPost");
     const platformOwn = req.authorPlatform;
@@ -448,9 +453,12 @@ function renderRequestCard(req) {
     const cancelBtn = (req.authorId === currentUser.id && overallStatus === "in-progress")
         ? `<button class="btn btn-cancel form-card-cancel" data-cancel="${req.id}">⊘ 取消</button>`
         : "";
-    const cardClass = cancelBtn ? "form-card has-cancel" : "form-card";
+    let cardClass = "form-card";
+    if (cancelBtn) cardClass += " has-cancel";
+    if (!collapsed) cardClass += " expanded";
 
-    const bodyHtml = collapsed ? "" : `
+    // body 始终渲染,通过CSS的 .form-card.expanded .form-card-body 控制显隐
+    const bodyHtml = `
         <div class="form-card-body">
             <div class="flow-row">
                 ${submitBox}
@@ -603,11 +611,6 @@ setInterval(() => {
 }, 60 * 1000);
 
 // 初始化
-_onUpdate = () => {
-    if (currentTab === "myforms" || currentTab === "all") {
-        renderRequestList(currentTab === "all");
-    }
-};
 switchView("myforms");
 </script>
 
