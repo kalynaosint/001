@@ -57,17 +57,13 @@ const STORAGE_KEY_REQUESTS = "voting_site_requests_v1";
 const STORAGE_KEY_SESSION = "voting_site_session_v1";
 
 function loadRequests() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY_REQUESTS);
-        return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-        console.error("加载请求列表失败", e);
-        return [];
-    }
+    return _cachedRequests;
 }
 
 function saveRequests(requests) {
-    localStorage.setItem(STORAGE_KEY_REQUESTS, JSON.stringify(requests));
+    const obj = {};
+    requests.forEach(r => obj[r.id] = r);
+    requestsRef.set(obj);
 }
 
 function loadSession() {
