@@ -100,16 +100,16 @@
 
                 <h3>1. 内容标题</h3>
                 <div class="form-row">
-                    <input type="text" id="reqTitle" required placeholder="填写发布内容的主要名称">
+                    <input type="text" id="reqTitle" required placeholder="例如：关于XX话题的科普视频">
                 </div>
 
-                <h3>2. 内容链接</h3>
+                <h3>2. 内容描述 / 文字稿</h3>
                 <div class="form-row">
-                    <textarea id="reqContent" required placeholder="请先在对应平台发布，然后在此粘贴链接..."></textarea>
+                    <textarea id="reqContent" required placeholder="粘贴文字稿内容，或描述视频主题、要点、链接等..."></textarea>
                     <div class="help-text">让其他成员了解你的内容，方便他们做判断。</div>
                 </div>
 
-                <h3>3. 您的内容默认将发布到自己负责的平台</h3>
+                <h3>3. 你想发布到自己负责的平台吗？</h3>
                 <div class="form-row" id="ownPlatformInfo"></div>
 
                 <h3>4. 是否同步到其他平台？</h3>
@@ -168,8 +168,8 @@
             <h3>匿名投票</h3>
             <p>所有投票都是<strong>匿名</strong>的。系统只显示参与人数和加权结果，不公开具体投票人。作者本人和其他成员都看不到谁投了什么票。</p>
 
-            <h3>违规惩罚</h3>
-            <p class="help-text">1. 您必须在提交申请后立刻在群内@所有人开启投票，因未@导致无效投票结果将受到惩罚；2. 您必须在发布内容或同步内容前进行申请，若发布后未提交申请或未通过申请即同步至其他平台将受到惩罚；3. 您必须及时删除已发布但未通过的内容，未及时删除将受到惩罚。</p>
+            <h3>关于本系统</h3>
+            <p class="help-text">本系统使用 localStorage 存储数据，数据仅保存在你自己的浏览器中。要让小组成员真正协作投票，需要切换到云端存储（详见 README.md）。</p>
         </div>
     </div>
         </div><!-- /.section-content-wrapper -->
@@ -363,18 +363,63 @@ function renderRequestList(showAll) {
         });
     });
 
-    // 绑定投票按钮
+    // 绑定投票按钮 - 点击后展开评论框
     container.querySelectorAll("[data-vote]").forEach(btn => {
         btn.addEventListener("click", function() {
             const requestId = this.dataset.requestId;
             const stepKey = this.dataset.stepKey;
             const choice = this.dataset.vote;
-            const result = castVote(requestId, stepKey, currentUser.id, choice);
+            // 找到这个步骤对应的评论输入区
+            const voteSection = this.closest(".vote-section");
+            const commentBox = voteSection.querySelector(".vote-comment-box");
+            // 切换显示评论框, 标记当前选择的choice
+            commentBox.dataset.requestId = requestId;
+            commentBox.dataset.stepKey = stepKey;
+            commentBox.dataset.choice = choice;
+            commentBox.style.display = "block";
+            // 更新提示文字 + 必填标记
+            const hint = commentBox.querySelector(".vote-comment-hint");
+            const textarea = commentBox.querySelector("textarea");
+            if (choice === "reject") {
+                hint.innerHTML = '请说明<strong style="color:#CC0000">反对理由（必填）</strong>，作者将看到这条评论以便修改。';
+                textarea.placeholder = "例如：内容里关于X的描述不准确，建议改成Y...";
+                textarea.required = true;
+            } else {
+                hint.innerHTML = '可以给作者留下<strong>建议或意见（可选）</strong>，作者会在请求页面看到。';
+                textarea.placeholder = "可以留空,直接点提交";
+                textarea.required = false;
+            }
+            textarea.focus();
+        });
+    });
+
+    // 绑定评论框的提交按钮
+    container.querySelectorAll(".vote-comment-submit").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const commentBox = this.closest(".vote-comment-box");
+            const textarea = commentBox.querySelector("textarea");
+            const comment = textarea.value;
+            const result = castVote(
+                commentBox.dataset.requestId,
+                commentBox.dataset.stepKey,
+                currentUser.id,
+                commentBox.dataset.choice,
+                comment,
+            );
             if (!result.ok) {
                 alert(result.msg);
                 return;
             }
             renderRequestList(showAll);
+        });
+    });
+
+    // 绑定评论框的取消按钮
+    container.querySelectorAll(".vote-comment-cancel").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const commentBox = this.closest(".vote-comment-box");
+            commentBox.style.display = "none";
+            commentBox.querySelector("textarea").value = "";
         });
     });
 
@@ -606,6 +651,39 @@ function renderVoteDetails(req, stepKey, platform, title) {
     const approveCount = (result.voters || []).filter(v => v.choice === "approve").length;
     const rejectCount = (result.voters || []).filter(v => v.choice === "reject").length;
 
+    // 收集所有非空评论(匿名,不显示作者)
+    const comments = (result.voters || [])
+        .filter(v => v.comment && v.comment.trim())
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    let commentsHtml = "";
+    if (comments.length > 0) {
+        commentsHtml = `
+            <div class="vote-comments">
+                <div class="vote-comments-title">💬 评论与建议 <span style="color:#888;font-weight:normal">(${comments.length})</span></div>
+                ${comments.map(c => `
+                    <div class="vote-comment vote-comment-${c.choice}">
+                        <span class="vote-comment-tag ${c.choice}">${c.choice === "approve" ? "同意" : "反对"}</span>
+                        <span class="vote-comment-text">${escapeHtml(c.comment)}</span>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    }
+
+    // 评论输入框 (默认隐藏,点击投票按钮后展开)
+    const commentBoxHtml = (!isAuthor && !expired) ? `
+        <div class="vote-comment-box" style="display:none;">
+            <div class="vote-comment-hint"></div>
+            <textarea class="vote-comment-textarea" rows="3" maxlength="500"></textarea>
+            <div class="vote-comment-actions">
+                <button class="btn btn-primary vote-comment-submit">提交投票</button>
+                <button class="btn btn-cancel vote-comment-cancel">取消</button>
+                <span class="vote-comment-charcount" style="color:#888;font-size:11px;">最多500字 · 匿名</span>
+            </div>
+        </div>
+    ` : "";
+
     return `
     <div class="vote-section">
         <div class="vote-section-title">📊 ${escapeHtml(title)} - 投票详情</div>
@@ -623,6 +701,8 @@ function renderVoteDetails(req, stepKey, platform, title) {
             <span style="color:#555;">已有 <strong>${totalVoters}</strong> 人投票（同意 ${approveCount} · 反对 ${rejectCount}）· 投票匿名</span>
         </div>
         <div class="vote-actions">${actionsHtml}</div>
+        ${commentBoxHtml}
+        ${commentsHtml}
     </div>
     `;
 }
