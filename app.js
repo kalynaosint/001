@@ -20,7 +20,24 @@ let _onUpdate = null;
 
 requestsRef.on("value", snapshot => {
     const val = snapshot.val() || {};
-    _cachedRequests = Object.values(val);
+    _cachedRequests = Object.values(val).map(r => {
+        // 还原 syncToPlatforms 为数组（Firebase 可能转成对象）
+        if (r.syncToPlatforms && !Array.isArray(r.syncToPlatforms)) {
+            r.syncToPlatforms = Object.values(r.syncToPlatforms);
+        }
+        // 还原每个 step 的 votes
+        if (r.steps) {
+            Object.keys(r.steps).forEach(k => {
+                const v = r.steps[k].votes;
+                if (!v || v._placeholder) {
+                    r.steps[k].votes = [];
+                } else if (!Array.isArray(v)) {
+                    r.steps[k].votes = Object.values(v).filter(x => !x._placeholder);
+                }
+            });
+        }
+        return r;
+    });
     if (_onUpdate) _onUpdate();
 });
 
