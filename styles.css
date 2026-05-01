@@ -1,3 +1,10 @@
+/* ============================================================
+   OASIS 风格复刻样式
+   - 顶部 tabs 用真实 sliding doors 技术 (3层嵌套 + 切片PNG)
+   - 步骤框基于 workflow.css 的真实样式
+   - 状态颜色全部对齐 OASIS 原版
+   ============================================================ */
+
 * {
     box-sizing: border-box;
 }
@@ -229,8 +236,8 @@ body {
 .main-container {
     margin: 8px;
     background-image: url(images/section.bg.png);
-    /* 图片缺失时的回退色: 米白带一点点暖色 (接近OASIS section.bg.png的平均色) */
-    background-color: #f0eee5;
+    /* 图片缺失时的回退色: OASIS section.bg.png 是淡蓝紫色纹理 */
+    background-color: #c8d4ec;
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
     padding: 0;
