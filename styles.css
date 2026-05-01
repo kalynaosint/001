@@ -10,6 +10,8 @@ body {
     color: #333;
     background: #e8edf5 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23e8edf5'/><circle cx='20' cy='20' r='1' fill='%23d4dceb' opacity='0.5'/><circle cx='60' cy='40' r='1' fill='%23d4dceb' opacity='0.5'/><circle cx='80' cy='80' r='1' fill='%23d4dceb' opacity='0.5'/></svg>") repeat;
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.05);
 }
 
 /* ============= 顶部Tab导航 ============= */
@@ -362,7 +364,14 @@ body {
     right: 14px;
 }
 
-/* status文字在卡片header同一行，靠右；如有Cancel按钮则在它左侧 */
+/* 折叠时取消按钮跟着上移、变小 */
+.form-card:not(.expanded) .form-card-cancel {
+    top: 3px;
+    right: 8px;
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
 .form-card-status {
     font-weight: bold;
     font-size: 12px;
@@ -371,7 +380,10 @@ body {
 }
 
 .form-card.has-cancel .form-card-header {
-    padding-right: 100px;
+    padding-right: 80px;
+}
+.form-card:not(.expanded).has-cancel .form-card-header {
+    padding-right: 70px;
 }
 
 /* ============= 登录页 ============= */
@@ -699,79 +711,299 @@ body {
     transition: transform 0.1s;
 }
 
-/* ============= 移动端适配 ============= */
+/* ====================================================================
+   移动端适配（< 700px）：完整重写以适配触屏 + 小屏
+   ==================================================================== */
 @media (max-width: 700px) {
     body {
+        font-size: 13px;
+    }
+
+    /* ----- 顶部Tab：放大点击区域 ----- */
+    .top-nav {
+        padding: 10px 4px 0 4px;
+    }
+    .top-nav ul {
+        gap: 2px;
+    }
+    .top-nav a {
+        padding: 9px 12px;
+        font-size: 13px;
+        border-radius: 8px 8px 0 0;
+    }
+
+    /* ----- 子导航：手机端隐藏(顶部tab已有相同入口) ----- */
+    .sub-nav {
+        display: none;
+    }
+
+    /* ----- 用户信息条 ----- */
+    .user-info-bar {
+        padding: 8px 12px;
         font-size: 12px;
     }
-
-    .top-nav {
-        padding: 6px 0 0 4px;
+    .user-info-bar a {
+        padding: 4px 8px;
+        background: rgba(255,255,255,0.5);
+        border-radius: 3px;
+        text-decoration: none;
+        color: #5a4a1a;
+        font-weight: bold;
     }
 
-    .top-nav a {
-        padding: 5px 8px;
-        font-size: 11px;
-    }
-
-    .sub-nav {
-        padding: 6px 10px;
-        font-size: 11px;
-    }
-
+    /* ----- 主容器:撑满屏幕 ----- */
     .main-container {
         margin: 6px;
+        border-radius: 6px;
     }
 
+    .section-header {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    /* ----- 页面标题区 ----- */
     .page-title-bar {
-        padding: 12px 14px 10px 14px;
+        padding: 14px 14px 12px 14px;
+        gap: 12px;
     }
-
     .page-title {
-        font-size: 18px;
+        font-size: 20px;
     }
-
-    .form-card {
-        margin: 8px;
-        padding: 10px;
+    .page-title-sub {
+        display: block;
+        margin-left: 0;
+        margin-top: 2px;
+        font-size: 11px;
     }
-
-    .flow-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .flow-step {
-        max-width: none;
+    .page-title-bar .btn {
         width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
     }
 
-    .flow-arrow {
-        transform: rotate(90deg);
-        margin: 0 auto;
-        font-size: 22px;
-        padding: 0;
+    /* ----- 卡片 ----- */
+    .form-card {
+        margin: 8px 6px;
+        padding: 12px;
+        border-radius: 6px;
     }
-
-    .form-card-cancel {
-        position: static;
-        margin-top: 8px;
+    .form-card:not(.expanded) {
+        padding: 8px 12px;
     }
 
     .form-card-header {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
+        gap: 6px;
+    }
+    .form-card-title {
+        font-size: 14px;
+        flex: 1;
+        line-height: 1.4;
+    }
+    .form-card-title .sub {
+        display: block;
+        font-size: 11px;
+        margin-top: 2px;
     }
 
+    /* ----- 取消按钮 ----- */
+    .form-card-cancel {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .form-card:not(.expanded) .form-card-cancel {
+        top: 5px;
+        right: 6px;
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+    .form-card.has-cancel .form-card-header {
+        padding-right: 70px;
+    }
+    .form-card:not(.expanded).has-cancel .form-card-header {
+        padding-right: 65px;
+    }
+
+    /* ----- 状态文字 ----- */
+    .form-card-status {
+        font-size: 11px;
+        margin-right: 6px;
+    }
+
+    /* ----- 流程图: 竖向, 箭头变成向下 ----- */
+    .flow-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin-top: 8px;
+    }
+    .flow-step {
+        max-width: none;
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    .flow-step-label {
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+    .flow-step-box {
+        padding: 9px 11px;
+        min-height: auto;
+    }
+    .flow-step-detail {
+        font-size: 12px;
+    }
+    .flow-step-detail .sub-line {
+        font-size: 11px;
+    }
+    .flow-arrow {
+        transform: rotate(90deg);
+        margin: 2px auto;
+        font-size: 18px;
+        padding: 0;
+        align-self: center;
+    }
+
+    /* ----- 内容描述 ----- */
+    .content-body {
+        font-size: 12px;
+        padding: 8px 10px;
+        max-height: 120px;
+    }
+
+    /* ----- 投票区域 ----- */
+    .vote-section {
+        margin-top: 10px;
+        padding: 10px;
+    }
+    .vote-section-title {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    .vote-bar-track {
+        height: 22px;
+    }
+    .vote-bar-info {
+        font-size: 11px;
+    }
+    .vote-detail-list {
+        font-size: 11px;
+    }
+
+    /* ----- 投票按钮: 大且易点 ----- */
+    .vote-actions {
+        gap: 6px;
+        margin-top: 12px;
+    }
+    .vote-actions .btn {
+        flex: 1;
+        min-width: 100px;
+        padding: 10px 8px;
+        font-size: 13px;
+        text-align: center;
+    }
+    .voted-tag {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    /* ----- 登录页 ----- */
     .login-wrapper {
-        margin: 20px 8px;
+        margin: 16px 8px;
     }
-
     .login-body {
-        padding: 16px;
+        padding: 18px 16px;
+    }
+    .login-title {
+        font-size: 19px;
+    }
+    .login-actions .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
     }
 
+    /* ----- 提交表单 ----- */
     .submit-form-wrapper {
-        padding: 12px 14px;
+        padding: 14px 12px;
+    }
+    .submit-form-wrapper h3 {
+        font-size: 15px;
+        margin: 14px 0 6px 0;
+    }
+    .form-row {
+        margin-bottom: 12px;
+    }
+    .checkbox-group label {
+        padding: 8px 0;
+    }
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+    .submit-form-wrapper .btn {
+        padding: 11px 18px;
+        font-size: 14px;
+    }
+
+    /* ===== iOS输入框聚焦不放大: 字体必须 ≥ 16px ===== */
+    .form-row input[type="text"],
+    .form-row input[type="password"],
+    .form-row select,
+    .form-row textarea,
+    .submit-form-wrapper select {
+        font-size: 16px;
+        padding: 10px 8px;
+    }
+    .form-row textarea {
+        min-height: 120px;
+    }
+
+    .help-text {
+        font-size: 12px;
+    }
+
+    /* ----- 折叠三角形: 更大点击区 ----- */
+    .form-card-title .triangle.clickable {
+        width: 20px;
+        font-size: 12px;
+        padding: 2px 0;
+    }
+    .form-card-title .clickable {
+        padding: 2px 0;
+    }
+
+    .user-info-bar .role-tag {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+
+    .platform-tag {
+        font-size: 12px;
+        padding: 3px 8px;
+    }
+}
+
+/* ===== 极小屏(<380px)进一步压缩 ===== */
+@media (max-width: 380px) {
+    .top-nav a {
+        padding: 8px 9px;
+        font-size: 12px;
+    }
+    .form-card {
+        margin: 6px 4px;
+        padding: 10px;
+    }
+    .form-card-title {
+        font-size: 13px;
+    }
+    .page-title {
+        font-size: 18px;
     }
 }
