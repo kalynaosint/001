@@ -1,365 +1,618 @@
-/* ============================================================
-   核心逻辑
-   ============================================================ */
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>内容协调投票系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-// ============= Firebase 配置 =============
-const firebaseConfig = {
-    apiKey: "AIzaSyAjukPjldgy9utSn-qLzbQgawx1Mzh4vDs",
-    authDomain: "voting-site-63369.firebaseapp.com",
-    databaseURL: "https://voting-site-63369-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "voting-site-63369",
-};
+<!-- 顶部Tab导航 -->
+<div class="top-nav">
+    <ul>
+        <li><a href="#" data-tab="myforms" class="active">我的请求</a></li>
+        <li><a href="#" data-tab="submit">提交新请求</a></li>
+        <li><a href="#" data-tab="all">全部请求</a></li>
+        <li><a href="#" data-tab="rules">规则说明</a></li>
+    </ul>
+</div>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const requestsRef = db.ref("requests");
+<!-- 子导航 -->
+<div class="sub-nav">
+    <a href="#" data-subtab="myforms" class="active">我的请求</a>
+    <span class="separator">|</span>
+    <a href="#" data-subtab="submit">提交新请求</a>
+    <span class="separator">|</span>
+    <a href="#" data-subtab="rules">规则说明</a>
+</div>
 
-// 内存缓存 + 实时订阅
-let _cachedRequests = [];
-let _onUpdate = null;
+<!-- 用户信息条 -->
+<div class="user-info-bar">
+    <div>
+        当前用户：<strong id="userName"></strong>
+        <span id="userRoleTag" class="role-tag"></span>
+    </div>
+    <div>
+        <a href="#" id="logoutBtn">退出登录</a>
+    </div>
+</div>
 
-requestsRef.on("value", snapshot => {
-    const val = snapshot.val() || {};
-    _cachedRequests = Object.values(val).map(r => {
-        // 还原 syncToPlatforms 为数组
-        if (r.syncToPlatforms && !Array.isArray(r.syncToPlatforms)) {
-            r.syncToPlatforms = Object.values(r.syncToPlatforms);
-        }
-        // 还原每个 step 的 votes 为数组
-        if (r.steps) {
-            Object.keys(r.steps).forEach(k => {
-                const v = r.steps[k].votes;
-                if (!v) {
-                    r.steps[k].votes = [];
-                } else if (Array.isArray(v)) {
-                    r.steps[k].votes = v;
-                } else {
-                    // 对象形式：取 values，过滤掉 __keep 占位
-                    r.steps[k].votes = Object.values(v).filter(x => x && typeof x === "object" && x.userId);
-                }
-            });
-        }
-        return r;
-    });
-    if (_onUpdate) _onUpdate();
+<!-- 主容器 -->
+<div class="main-container">
+    <div class="section-header">
+        <span class="icon">📋</span><span id="sectionHeaderText">内容协调请求</span>
+    </div>
+
+    <!-- ==================== 视图 1：我的请求 / 全部请求 ==================== -->
+    <div id="view-myforms" class="view">
+        <div class="page-title-bar">
+            <div>
+                <span class="page-title" id="listTitle">提交记录</span>
+                <span class="page-title-sub" id="listSubtitle">- 进行中和已完成的请求</span>
+            </div>
+            <button class="btn btn-primary" onclick="switchView('submit')">
+                <span class="btn-icon">📝</span>提交新请求
+            </button>
+        </div>
+        <div id="requestList"></div>
+    </div>
+
+    <!-- ==================== 视图 2：提交新请求 ==================== -->
+    <div id="view-submit" class="view" style="display: none;">
+        <div class="page-title-bar">
+            <div>
+                <span class="page-title">提交新请求</span>
+                <span class="page-title-sub">- 让小组成员投票决定内容发布</span>
+            </div>
+        </div>
+        <div class="submit-form-wrapper">
+            <form id="newRequestForm" autocomplete="off">
+
+                <h3>请求类型</h3>
+                <div class="form-row">
+                    <select id="requestType" required>
+                        <option value="content_publish">内容发布请求</option>
+                    </select>
+                    <div class="help-text">目前仅支持"内容发布请求"，未来将扩展更多类型。</div>
+                </div>
+
+                <h3>1. 内容标题</h3>
+                <div class="form-row">
+                    <input type="text" id="reqTitle" required placeholder="例如：关于XX话题的科普视频">
+                </div>
+
+                <h3>2. 内容描述 / 文字稿</h3>
+                <div class="form-row">
+                    <textarea id="reqContent" required placeholder="粘贴文字稿内容，或描述视频主题、要点、链接等..."></textarea>
+                    <div class="help-text">让其他成员了解你的内容，方便他们做判断。</div>
+                </div>
+
+                <h3>3. 你想发布到自己负责的平台吗？</h3>
+                <div class="form-row" id="ownPlatformInfo"></div>
+
+                <h3>4. 是否同步到其他平台？</h3>
+                <div class="form-row checkbox-group" id="syncPlatformsGroup">
+                    <!-- JS 注入 -->
+                </div>
+                <div class="help-text">勾选你希望同步发布到的其他平台（运营者及组员将投票决定是否同意）。</div>
+
+                <div class="form-row" style="margin-top: 18px;">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">✓</span>提交请求
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="switchView('myforms')">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== 视图 3：规则说明 ==================== -->
+    <div id="view-rules" class="view" style="display: none;">
+        <div class="page-title-bar">
+            <div>
+                <span class="page-title">投票规则说明</span>
+                <span class="page-title-sub">- 加权投票机制详解</span>
+            </div>
+        </div>
+        <div class="submit-form-wrapper">
+            <h3>基本机制</h3>
+            <p>系统采用<strong>「反对票」机制</strong>：默认通过，除非反对加权分数过高。作者本人对自己内容自动同意，其他人投票主要起到"阻止"作用。</p>
+
+            <h3>权重分配</h3>
+            <ul>
+                <li><strong>内容作者：</strong>权重 3，自动同意（不可投反对票）</li>
+                <li><strong>组长：</strong>权重 3（对所有请求和所有步骤生效）</li>
+                <li><strong>所涉平台的运营者：</strong>权重 3（仅对涉及自己平台的步骤生效）</li>
+                <li><strong>其他人：</strong>权重 1</li>
+            </ul>
+
+            <h3>通过条件（截止后判定）</h3>
+            <ol>
+                <li><strong>反对加权占比 &lt; 40%</strong> → 通过</li>
+                <li><strong>反对加权占比 ≥ 40%</strong> → 否决</li>
+                <li><strong>硬性下限：</strong>反对加权总分 ≥ 6 → 立即否决（无需等截止）<br>
+                    <span class="help-text">举例：组长 + 1 名相关运营者反对（3+3=6），或 2 名相关运营者反对（3+3=6），或 1 名高权重者 + 3 名普通成员反对（3+1+1+1=6）</span>
+                </li>
+            </ol>
+
+            <h3>截止时间</h3>
+            <p>每个步骤的截止时间不同：</p>
+            <ul>
+                <li><strong>主发布步骤</strong>（发到作者负责的平台）：提交后 <strong>1 小时</strong>截止</li>
+                <li><strong>同步步骤</strong>（同步到其他平台）：提交后 <strong>3 小时</strong>截止</li>
+            </ul>
+            <p>截止前结论仍可改变，截止后系统自动给出最终结论。</p>
+
+            <h3>匿名投票</h3>
+            <p>所有投票都是<strong>匿名</strong>的。系统只显示参与人数和加权结果，不公开具体投票人。作者本人和其他成员都看不到谁投了什么票。</p>
+
+            <h3>关于本系统</h3>
+            <p class="help-text">本系统使用 localStorage 存储数据，数据仅保存在你自己的浏览器中。要让小组成员真正协作投票，需要切换到云端存储（详见 README.md）。</p>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+// ============================================================
+// 启动检查
+// ============================================================
+const session = loadSession();
+if (!session) {
+    window.location.href = "index.html";
+}
+const currentUser = getMemberById(session.id);
+if (!currentUser) {
+    clearSession();
+    window.location.href = "index.html";
+}
+
+// ============================================================
+// 用户信息条渲染
+// ============================================================
+document.getElementById("userName").textContent = currentUser.name;
+const roleTag = document.getElementById("userRoleTag");
+roleTag.textContent = getRoleLabel(currentUser);
+roleTag.classList.add(getRoleClassName(currentUser));
+
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+    e.preventDefault();
+    clearSession();
+    window.location.href = "index.html";
 });
 
-// ---- 平台映射 ----
-const PLATFORMS = {
-    bilibili: { name: "Bilibili", className: "platform-bilibili", operatorRole: "operator_bilibili" },
-    douyin:   { name: "抖音",     className: "platform-douyin",   operatorRole: "operator_douyin" },
-    zhihu:    { name: "知乎",     className: "platform-zhihu",    operatorRole: "operator_zhihu" },
-};
-
-// ---- 投票截止时间（毫秒） ----
-const VOTE_DURATION_OWN_MS = 1 * 60 * 60 * 1000;   // 主发布：1 小时
-const VOTE_DURATION_SYNC_MS = 3 * 60 * 60 * 1000;  // 同步到其他平台：3 小时
-
-function getStepDuration(stepKey) {
-    return stepKey === "ownPost" ? VOTE_DURATION_OWN_MS : VOTE_DURATION_SYNC_MS;
-}
-
-// ---- 加权权重 ----
-const WEIGHT_OPERATOR_INVOLVED = 3; // 涉及平台的运营者
-const WEIGHT_LEADER = 3;             // 组长（对所有步骤生效）
-const WEIGHT_DEFAULT = 1;            // 其他人
-const WEIGHT_AUTHOR = 3;             // 作者权重（作者自动同意）
-
-// 反对占比阈值：超过则否决
-const REJECT_RATIO_THRESHOLD = 0.4;
-// 反对硬性下限：反对加权分超过此值直接否决
-const REJECT_HARD_THRESHOLD = 6;
-
 // ============================================================
-// localStorage 数据层（封装方便日后切换为云端存储）
+// Tab 切换
 // ============================================================
-const STORAGE_KEY_REQUESTS = "voting_site_requests_v1";
-const STORAGE_KEY_SESSION = "voting_site_session_v1";
+let currentTab = "myforms";
 
-function loadRequests() {
-    return _cachedRequests;
-}
+function switchView(tabName) {
+    currentTab = tabName;
 
-function saveRequests(requests) {
-    const obj = {};
-    requests.forEach(r => {
-        const copy = JSON.parse(JSON.stringify(r));
-        if (copy.steps) {
-            Object.keys(copy.steps).forEach(k => {
-                // 把 votes 数组转为对象（用 userId 做 key），避免空数组被吞 + 数组被转成对象的混乱
-                const votesArr = copy.steps[k].votes || [];
-                const votesObj = {};
-                votesArr.forEach(v => { votesObj[v.userId] = v; });
-                // 即使是空对象，也加一个占位字段保证节点存在
-                votesObj.__keep = true;
-                copy.steps[k].votes = votesObj;
-            });
-        }
-        obj[r.id] = copy;
+    // 顶部tab高亮
+    document.querySelectorAll(".top-nav a").forEach(a => {
+        a.classList.toggle("active", a.dataset.tab === tabName ||
+            (tabName === "all" && a.dataset.tab === "all"));
     });
-    requestsRef.set(obj);
-}
-
-function loadSession() {
-    try {
-        const raw = sessionStorage.getItem(STORAGE_KEY_SESSION);
-        return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-        return null;
-    }
-}
-
-function saveSession(user) {
-    sessionStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(user));
-}
-
-function clearSession() {
-    sessionStorage.removeItem(STORAGE_KEY_SESSION);
-}
-
-// ============================================================
-// 用户/成员相关
-// ============================================================
-function getMemberById(id) {
-    return MEMBERS.find(m => m.id === id);
-}
-
-function isOperator(user) {
-    return user && user.role && user.role.startsWith("operator_");
-}
-
-function isLeader(user) {
-    return user && user.role === "leader";
-}
-
-function getOperatorPlatform(user) {
-    if (!user) return null;
-    if (user.role === "operator_bilibili") return "bilibili";
-    if (user.role === "operator_douyin") return "douyin";
-    if (user.role === "operator_zhihu") return "zhihu";
-    return null;
-}
-
-function getRoleLabel(user) {
-    if (!user) return "";
-    if (isLeader(user)) return "组长";
-    const p = getOperatorPlatform(user);
-    if (p) return PLATFORMS[p].name + " 运营者";
-    return "组员";
-}
-
-function getRoleClassName(user) {
-    if (!user) return "role-member";
-    if (isLeader(user)) return "role-leader";
-    if (isOperator(user)) return "role-operator";
-    return "role-member";
-}
-
-// ============================================================
-// 投票核心：判断状态 / 计算结果
-// ============================================================
-
-/**
- * 计算针对某个 step（own 或 sync）当前的投票汇总
- * @returns {object} { approveScore, rejectScore, totalVoters, ratio, status, voters }
- *   status: 'pending' | 'approved' | 'rejected' | 'pending-deadline-passed'
- */
-function computeVoteResult(request, stepKey) {
-    const step = request.steps[stepKey];
-    if (!step) return null;
-
-    // 仅"对应平台的运营者"获得加权 3
-    const platform = stepKey === "ownPost" ? request.authorPlatform : step.targetPlatform;
-    const involvedOperatorRole = platform ? PLATFORMS[platform].operatorRole : null;
-
-    let approveScore = 0;
-    let rejectScore = 0;
-    const voters = step.votes || [];
-
-    voters.forEach(v => {
-        const member = getMemberById(v.userId);
-        if (!member) return;
-        let weight = WEIGHT_DEFAULT;
-        if (member.role === "leader") {
-            weight = WEIGHT_LEADER;
-        } else if (involvedOperatorRole && member.role === involvedOperatorRole) {
-            weight = WEIGHT_OPERATOR_INVOLVED;
-        }
-        if (v.choice === "approve") approveScore += weight;
-        else if (v.choice === "reject") rejectScore += weight;
+    // 子导航高亮
+    document.querySelectorAll(".sub-nav a").forEach(a => {
+        a.classList.toggle("active", a.dataset.subtab === tabName);
     });
 
-    // 作者自动同意，加上作者权重（如果作者本人不在已投者列表里）
-    const authorAlreadyVoted = voters.some(v => v.userId === request.authorId);
-    if (!authorAlreadyVoted) {
-        approveScore += WEIGHT_AUTHOR;
-    }
+    // 视图切换
+    document.querySelectorAll(".view").forEach(v => v.style.display = "none");
 
-    const totalScore = approveScore + rejectScore;
-    const rejectRatio = totalScore > 0 ? rejectScore / totalScore : 0;
-
-    // 判断时间是否过截止（按步骤类型不同）
-    const deadline = request.submittedAt + getStepDuration(stepKey);
-    const now = Date.now();
-    const expired = now >= deadline;
-
-    // 决议规则：
-    //   1) 反对加权达到硬性下限 → 立即否决
-    //   2) 截止时按反对占比判定
-    //   3) 未截止时若反对占比已超阈值，记为"暂时倾向否决"，仍允许翻盘
-    let status = "pending";
-    if (rejectScore >= REJECT_HARD_THRESHOLD) {
-        status = "rejected";
-    } else if (expired) {
-        status = (rejectRatio >= REJECT_RATIO_THRESHOLD) ? "rejected" : "approved";
+    if (tabName === "submit") {
+        document.getElementById("view-submit").style.display = "block";
+        document.getElementById("sectionHeaderText").textContent = "提交新请求";
+        renderSubmitForm();
+    } else if (tabName === "rules") {
+        document.getElementById("view-rules").style.display = "block";
+        document.getElementById("sectionHeaderText").textContent = "规则说明";
     } else {
-        // 截止前不下最终结论，仅显示进行中
-        status = "pending";
+        document.getElementById("view-myforms").style.display = "block";
+        document.getElementById("sectionHeaderText").textContent =
+            tabName === "all" ? "全部请求" : "我的请求";
+        document.getElementById("listTitle").textContent =
+            tabName === "all" ? "全部请求" : "我的请求";
+        renderRequestList(tabName === "all");
     }
-
-    return {
-        approveScore,
-        rejectScore,
-        rejectRatio,
-        totalVoters: voters.length,
-        status,
-        voters,
-        expired,
-        deadline,
-        now,
-    };
 }
 
-/**
- * 综合判断整个 request 的状态：
- *   - 如果 ownPost 被否决 → 整个 request 状态：rejected
- *   - 如果存在 syncRequests 且全部 approved，且 ownPost 也 approved → approved
- *   - 否则按各 step 综合显示 in-progress / approved / rejected
- */
-function computeRequestStatus(request) {
-    const ownResult = computeVoteResult(request, "ownPost");
-    if (!ownResult) return "in-progress";
-
-    const syncSteps = Object.keys(request.steps).filter(k => k.startsWith("sync_"));
-    const syncResults = syncSteps.map(k => computeVoteResult(request, k));
-
-    // 任一被否决 → 整体显示 in-progress（仍可继续讨论），但会把对应步骤标红
-    // 全部 approved → approved
-    const allApproved =
-        ownResult.status === "approved" &&
-        syncResults.every(r => r.status === "approved");
-
-    if (allApproved) return "approved";
-
-    const allDecided =
-        ownResult.status !== "pending" &&
-        syncResults.every(r => r.status !== "pending");
-
-    if (allDecided) {
-        // 至少有一个被 reject
-        const anyApproved = ownResult.status === "approved" ||
-            syncResults.some(r => r.status === "approved");
-        return anyApproved ? "partial" : "rejected";
-    }
-
-    return "in-progress";
-}
+document.querySelectorAll(".top-nav a").forEach(a => {
+    a.addEventListener("click", function(e) {
+        e.preventDefault();
+        switchView(this.dataset.tab);
+    });
+});
+document.querySelectorAll(".sub-nav a").forEach(a => {
+    a.addEventListener("click", function(e) {
+        e.preventDefault();
+        switchView(this.dataset.subtab);
+    });
+});
 
 // ============================================================
-// 投票操作
+// 提交表单渲染
 // ============================================================
-function castVote(requestId, stepKey, userId, choice) {
-    const requests = loadRequests();
-    const req = requests.find(r => r.id === requestId);
-    if (!req) return { ok: false, msg: "请求不存在" };
+function renderSubmitForm() {
+    const userPlatform = getOperatorPlatform(currentUser);
+    const ownInfo = document.getElementById("ownPlatformInfo");
+    const syncGroup = document.getElementById("syncPlatformsGroup");
 
-    const step = req.steps[stepKey];
-    if (!step) return { ok: false, msg: "步骤不存在" };
-
-    // 作者不能对自己的内容投反对
-    if (userId === req.authorId && choice === "reject") {
-        return { ok: false, msg: "你是作者，无法对自己的内容投反对票（默认同意）" };
-    }
-
-    // 检查是否过截止
-    const now = Date.now();
-    if (now >= req.submittedAt + getStepDuration(stepKey)) {
-        return { ok: false, msg: "投票已截止" };
-    }
-
-    if (!step.votes) step.votes = [];
-    // 一人一票，可改票
-    const existing = step.votes.find(v => v.userId === userId);
-    if (existing) {
-        existing.choice = choice;
-        existing.timestamp = now;
+    if (userPlatform) {
+        // 运营者：默认发布到自己负责的平台
+        ownInfo.innerHTML = `<span class="platform-tag ${PLATFORMS[userPlatform].className}">${PLATFORMS[userPlatform].name}</span> （你负责的平台，将作为主发布平台）`;
     } else {
-        step.votes.push({ userId, choice, timestamp: now });
+        // 普通组员：需要选一个主发布平台
+        ownInfo.innerHTML = `
+            <select id="authorPlatformSelect" required>
+                <option value="">-- 选择主发布平台 --</option>
+                <option value="bilibili">Bilibili</option>
+                <option value="douyin">抖音</option>
+                <option value="zhihu">知乎</option>
+            </select>
+            <div class="help-text">作为非运营者，你需要选择内容首先发布到哪个平台。</div>
+        `;
     }
 
-    saveRequests(requests);
-    return { ok: true };
+    // 同步到其他平台的复选框
+    syncGroup.innerHTML = "";
+    Object.keys(PLATFORMS).forEach(p => {
+        const skipPlatform = userPlatform === p;
+        if (skipPlatform) return; // 自己负责的平台不显示在这里
+        const label = document.createElement("label");
+        label.innerHTML = `
+            <input type="checkbox" name="syncPlatform" value="${p}">
+            <span class="platform-tag ${PLATFORMS[p].className}">${PLATFORMS[p].name}</span>
+        `;
+        syncGroup.appendChild(label);
+    });
 }
 
-// ============================================================
-// 创建新请求
-// ============================================================
-function createRequest({ authorId, title, content, authorPlatform, syncToPlatforms }) {
-    const requests = loadRequests();
-    const req = {
-        id: "req_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6),
-        authorId,
+document.getElementById("newRequestForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById("reqTitle").value.trim();
+    const content = document.getElementById("reqContent").value.trim();
+    if (!title || !content) {
+        alert("请填写完整");
+        return;
+    }
+
+    let authorPlatform = getOperatorPlatform(currentUser);
+    if (!authorPlatform) {
+        const sel = document.getElementById("authorPlatformSelect");
+        authorPlatform = sel ? sel.value : "";
+        if (!authorPlatform) {
+            alert("请选择主发布平台");
+            return;
+        }
+    }
+
+    const syncTo = Array.from(document.querySelectorAll('input[name="syncPlatform"]:checked'))
+        .map(c => c.value)
+        .filter(p => p !== authorPlatform); // 排除主平台本身
+
+    createRequest({
+        authorId: currentUser.id,
         title,
         content,
-        authorPlatform,        // 作者负责的平台
-        syncToPlatforms,       // 数组，希望同步到的其他平台
-        submittedAt: Date.now(),
-        steps: {
-            ownPost: { votes: [] },  // 是否适合发到作者负责的平台
-        },
-    };
-    syncToPlatforms.forEach(p => {
-        req.steps["sync_" + p] = { targetPlatform: p, votes: [] };
+        authorPlatform,
+        syncToPlatforms: syncTo,
     });
-    requests.push(req);
-    saveRequests(requests);
-    return req;
-}
 
-function deleteRequest(requestId, userId) {
-    const requests = loadRequests();
-    const idx = requests.findIndex(r => r.id === requestId);
-    if (idx < 0) return false;
-    if (requests[idx].authorId !== userId) return false;
-    requests.splice(idx, 1);
-    saveRequests(requests);
-    return true;
-}
+    // 重置并跳回列表
+    this.reset();
+    switchView("myforms");
+});
 
 // ============================================================
-// 工具
+// 请求列表渲染
 // ============================================================
-function formatDate(ts) {
-    const d = new Date(ts);
-    const pad = n => String(n).padStart(2, "0");
-    return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function renderRequestList(showAll) {
+    const requests = loadRequests().sort((a, b) => b.submittedAt - a.submittedAt);
+    const list = showAll ? requests : requests.filter(r => r.authorId === currentUser.id);
+    const container = document.getElementById("requestList");
+
+    if (list.length === 0) {
+        container.innerHTML = `<div class="empty-state">${showAll ? "暂无任何请求" : "你还没有提交过请求"}</div>`;
+        return;
+    }
+
+    container.innerHTML = list.map(req => renderRequestCard(req)).join("");
+
+    // 绑定折叠/展开点击
+    container.querySelectorAll("[data-toggle]").forEach(el => {
+        el.addEventListener("click", function(e) {
+            e.stopPropagation();
+            const reqId = this.dataset.toggle;
+            toggleCollapsed(reqId);
+            // 只切换当前卡片的expanded class,不重新渲染整个列表
+            // 这样CSS的transition才能正常播放动画
+            const card = this.closest(".form-card");
+            if (card) {
+                card.classList.toggle("expanded");
+            }
+        });
+    });
+
+    // 绑定投票按钮
+    container.querySelectorAll("[data-vote]").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const requestId = this.dataset.requestId;
+            const stepKey = this.dataset.stepKey;
+            const choice = this.dataset.vote;
+            const result = castVote(requestId, stepKey, currentUser.id, choice);
+            if (!result.ok) {
+                alert(result.msg);
+                return;
+            }
+            renderRequestList(showAll);
+        });
+    });
+
+    // 绑定取消按钮
+    container.querySelectorAll("[data-cancel]").forEach(btn => {
+        btn.addEventListener("click", function() {
+            if (!confirm("确定要取消此请求吗？")) return;
+            const ok = deleteRequest(this.dataset.cancel, currentUser.id);
+            if (ok) renderRequestList(showAll);
+        });
+    });
 }
 
-function formatRemaining(ts) {
-    const remaining = ts - Date.now();
-    if (remaining <= 0) return "已截止";
-    const hours = Math.floor(remaining / 3600000);
-    const minutes = Math.floor((remaining % 3600000) / 60000);
-    if (hours > 0) return `剩余 ${hours} 小时 ${minutes} 分`;
-    return `剩余 ${minutes} 分`;
+function getNextDeadline(req) {
+    const now = Date.now();
+    const ownDeadline = req.submittedAt + 1 * 60 * 60 * 1000;
+    const syncDeadline = req.submittedAt + 3 * 60 * 60 * 1000;
+    const hasSyncs = (req.syncToPlatforms || []).length > 0;
+    // 返回尚未截止中最近的；若都已截止返回最大值表示全部结束
+    if (now < ownDeadline) return ownDeadline;
+    if (hasSyncs && now < syncDeadline) return syncDeadline;
+    return null; // 全部已截止
 }
 
-function escapeHtml(s) {
-    if (s == null) return "";
-    return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+// 折叠状态：requestId -> bool（true=折叠）
+const COLLAPSED_KEY = "voting_site_collapsed_v1";
+function loadCollapsed() {
+    try {
+        return JSON.parse(localStorage.getItem(COLLAPSED_KEY) || "{}");
+    } catch { return {}; }
 }
+function saveCollapsed(state) {
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify(state));
+}
+function isCollapsed(requestId) {
+    return !!loadCollapsed()[requestId];
+}
+function toggleCollapsed(requestId) {
+    const s = loadCollapsed();
+    s[requestId] = !s[requestId];
+    saveCollapsed(s);
+}
+
+function renderRequestCard(req) {
+    const author = getMemberById(req.authorId);
+    const authorName = author ? author.name : "(未知)";
+    const overallStatus = computeRequestStatus(req);
+    const statusText = {
+        "in-progress": '<span class="status-in-progress">进行中</span>',
+        "approved":    '<span class="status-approved">已通过</span><span style="color:#666;font-weight:normal;"> (协调成功)</span>',
+        "rejected":    '<span class="status-rejected">已否决</span>',
+        "partial":     '<span class="status-in-progress">部分通过</span>',
+    }[overallStatus];
+
+    const nextDeadline = getNextDeadline(req);
+    const timeText = nextDeadline ? formatRemaining(nextDeadline) : "投票已结束";
+    const collapsed = isCollapsed(req.id);
+    // 三角形统一为 ▶,展开时通过CSS旋转90度变成 ▼
+    const triangle = "▶";
+
+    const ownResult = computeVoteResult(req, "ownPost");
+    const platformOwn = req.authorPlatform;
+    const ownStepBox = renderStepBox({
+        label: `主发布：${PLATFORMS[platformOwn].name}`,
+        result: ownResult,
+        stepKey: "ownPost",
+        request: req,
+        platform: platformOwn,
+        isFirst: false,
+    });
+
+    const submitBox = `
+        <div class="flow-step">
+            <div class="flow-step-label">提交</div>
+            <div class="flow-step-box submitted">
+                <span class="flow-checkbox checked">✓</span>
+                <div class="flow-step-detail">
+                    <div class="main-line">已于 ${formatDate(req.submittedAt)} 提交</div>
+                    <div class="sub-line">作者：${escapeHtml(authorName)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const syncBoxes = (req.syncToPlatforms || []).map(p => {
+        const stepKey = "sync_" + p;
+        const result = computeVoteResult(req, stepKey);
+        return renderStepBox({
+            label: `同步到 ${PLATFORMS[p].name}`,
+            result,
+            stepKey,
+            request: req,
+            platform: p,
+            isFirst: false,
+        });
+    }).join('<div class="flow-arrow">▶</div>');
+
+    const arrows = '<div class="flow-arrow">▶</div>';
+
+    const cancelBtn = (req.authorId === currentUser.id && overallStatus === "in-progress")
+        ? `<button class="btn btn-cancel form-card-cancel" data-cancel="${req.id}">⊘ 取消</button>`
+        : "";
+    let cardClass = "form-card";
+    if (cancelBtn) cardClass += " has-cancel";
+    if (!collapsed) cardClass += " expanded";
+
+    // body 始终渲染,通过CSS的 .form-card.expanded .form-card-body 控制显隐
+    const bodyHtml = `
+        <div class="form-card-body">
+            <div class="flow-row">
+                ${submitBox}
+                ${arrows}
+                ${ownStepBox}
+                ${req.syncToPlatforms.length > 0 ? arrows + syncBoxes : ''}
+            </div>
+
+            <div class="content-body" title="内容描述">${escapeHtml(req.content)}</div>
+
+            ${renderVoteDetails(req, "ownPost", platformOwn, "主发布：" + PLATFORMS[platformOwn].name)}
+            ${(req.syncToPlatforms || []).map(p =>
+                renderVoteDetails(req, "sync_" + p, p, "同步到 " + PLATFORMS[p].name)
+            ).join("")}
+        </div>
+    `;
+
+    return `
+    <div class="${cardClass}">
+        <div class="form-card-header">
+            <div class="form-card-title">
+                <span class="triangle clickable" data-toggle="${req.id}">${triangle}</span><span class="clickable" data-toggle="${req.id}">${escapeHtml(req.title)}</span>
+                <span class="sub">(${escapeHtml(authorName)} · ${timeText})</span>
+            </div>
+            <div class="form-card-status">${statusText}</div>
+        </div>
+        ${cancelBtn}
+        ${bodyHtml}
+    </div>
+    `;
+}
+
+function renderStepBox({ label, result, stepKey, request, platform }) {
+    if (!result) return "";
+    let boxClass = "pending";
+    let checkClass = "";
+    let checkSym = "";
+    let detail = "";
+
+    if (result.status === "approved") {
+        boxClass = "submitted";
+        checkClass = "checked";
+        checkSym = "✓";
+        detail = `<div class="main-line">投票通过</div>
+                  <div class="sub-line approved-text">同意 ${result.approveScore} : 反对 ${result.rejectScore}</div>`;
+    } else if (result.status === "rejected") {
+        boxClass = "rejected";
+        checkClass = "";
+        checkSym = "✕";
+        detail = `<div class="main-line">投票否决</div>
+                  <div class="sub-line rejected-text">同意 ${result.approveScore} : 反对 ${result.rejectScore}</div>`;
+    } else {
+        // pending
+        boxClass = "pending-current";
+        checkClass = "checked-orange";
+        checkSym = "";
+        detail = `<div class="main-line">投票进行中</div>
+                  <div class="sub-line pending-text">已 ${result.totalVoters} 人参与 · ${formatRemaining(result.deadline)}</div>`;
+    }
+
+    return `
+        <div class="flow-step">
+            <div class="flow-step-label">${escapeHtml(label)}</div>
+            <div class="flow-step-box ${boxClass}">
+                <span class="flow-checkbox ${checkClass}">${checkSym}</span>
+                <div class="flow-step-detail">${detail}</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderVoteDetails(req, stepKey, platform, title) {
+    const result = computeVoteResult(req, stepKey);
+    if (!result) return "";
+
+    // 计算同意/反对比例条（基于加权分数）
+    const total = result.approveScore + result.rejectScore;
+    const approvePct = total > 0 ? (result.approveScore / total * 100) : 100;
+    const rejectPct  = total > 0 ? (result.rejectScore / total * 100)  : 0;
+
+    // 当前用户的投票状态
+    const myVote = (result.voters || []).find(v => v.userId === currentUser.id);
+    const isAuthor = req.authorId === currentUser.id;
+    const expired = result.expired;
+
+    // 哪个用户的角色权重特殊
+    const involvedOpRole = PLATFORMS[platform].operatorRole;
+
+    let actionsHtml = "";
+    if (isAuthor) {
+        actionsHtml = `<span class="voted-tag approve">作者本人 · 自动同意 (权重 ${WEIGHT_AUTHOR})</span>`;
+    } else if (expired) {
+        actionsHtml = `<span style="color:#666;">投票已截止</span>`;
+        if (myVote) {
+            actionsHtml += `<span class="voted-tag ${myVote.choice}">你投了：${myVote.choice === "approve" ? "同意" : "反对"}</span>`;
+        }
+    } else {
+        let myWeight = WEIGHT_DEFAULT;
+        if (currentUser.role === "leader") {
+            myWeight = WEIGHT_LEADER;
+        } else if (currentUser.role === involvedOpRole) {
+            myWeight = WEIGHT_OPERATOR_INVOLVED;
+        }
+        if (myVote) {
+            actionsHtml = `
+                <span class="voted-tag ${myVote.choice}">你已投：${myVote.choice === "approve" ? "同意" : "反对"} (权重 ${myWeight})</span>
+                <button class="btn btn-vote-approve" data-vote="approve" data-request-id="${req.id}" data-step-key="${stepKey}">改投同意</button>
+                <button class="btn btn-vote-reject" data-vote="reject" data-request-id="${req.id}" data-step-key="${stepKey}">改投反对</button>
+            `;
+        } else {
+            actionsHtml = `
+                <span style="color:#555;">你的权重：${myWeight}</span>
+                <button class="btn btn-vote-approve" data-vote="approve" data-request-id="${req.id}" data-step-key="${stepKey}">投同意</button>
+                <button class="btn btn-vote-reject" data-vote="reject" data-request-id="${req.id}" data-step-key="${stepKey}">投反对</button>
+            `;
+        }
+    }
+
+    // 投票详情：匿名 - 只显示参与人数（不显示具体姓名）
+    const totalVoters = (result.voters || []).length;
+    const approveCount = (result.voters || []).filter(v => v.choice === "approve").length;
+    const rejectCount = (result.voters || []).filter(v => v.choice === "reject").length;
+
+    return `
+    <div class="vote-section">
+        <div class="vote-section-title">📊 ${escapeHtml(title)} - 投票详情</div>
+        <div class="vote-bar-wrapper">
+            <div class="vote-bar-track">
+                <div class="vote-bar-approve" style="width: ${approvePct}%;"></div>
+                <div class="vote-bar-reject" style="width: ${rejectPct}%;"></div>
+            </div>
+            <div class="vote-bar-info">
+                <span>同意加权 ${result.approveScore} (${approvePct.toFixed(0)}%)</span>
+                <span>反对加权 ${result.rejectScore} (${rejectPct.toFixed(0)}%)</span>
+            </div>
+        </div>
+        <div class="vote-detail-list" style="border-top:none; padding-top:6px;">
+            <span style="color:#555;">已有 <strong>${totalVoters}</strong> 人投票（同意 ${approveCount} · 反对 ${rejectCount}）· 投票匿名</span>
+        </div>
+        <div class="vote-actions">${actionsHtml}</div>
+    </div>
+    `;
+}
+
+// 自动每分钟刷新一次（用于更新倒计时）
+setInterval(() => {
+    if (currentTab === "myforms" || currentTab === "all") {
+        renderRequestList(currentTab === "all");
+    }
+}, 60 * 1000);
+
+// 初始化
+switchView("myforms");
+</script>
+
+</body>
+</html>
