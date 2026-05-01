@@ -10,7 +10,26 @@
 </head>
 <body>
 
-<!-- 顶部Tab导航-->
+<!-- 1. 顶部 Logo 条 -->
+<div class="site-header">
+    <div class="site-header-inner">
+        <img class="site-logo" src="images/logo.png" alt="Logo" onerror="this.style.display='none'">
+        <span class="site-title">KalynaOSINT</span>
+    </div>
+</div>
+
+<!-- 2. 用户信息条 -->
+<div class="user-info-bar">
+    <div>
+        当前用户：<strong id="userName"></strong>
+        <span id="userRoleTag" class="role-tag"></span>
+    </div>
+    <div>
+        <a href="#" id="logoutBtn">退出登录</a>
+    </div>
+</div>
+
+<!-- 3. 顶部 Tab 导航 -->
 <div class="top-nav-wrapper">
     <ul class="top-nav">
         <li class="active" data-tab="myforms">
@@ -28,7 +47,7 @@
     </ul>
 </div>
 
-<!-- 子导航 -->
+<!-- 4. 子导航 -->
 <div class="tabsection">
     <div class="tabsection-top">
         <div class="toptabs-subtabs">
@@ -46,18 +65,7 @@
     </div>
 </div>
 
-<!-- 用户信息条 -->
-<div class="user-info-bar">
-    <div>
-        当前用户：<strong id="userName"></strong>
-        <span id="userRoleTag" class="role-tag"></span>
-    </div>
-    <div>
-        <a href="#" id="logoutBtn">退出登录</a>
-    </div>
-</div>
-
-<!-- 主容器 -->
+<!-- 5. 主容器 -->
 <div class="main-container">
     <div class="section-bg">
         <div class="section-header">
