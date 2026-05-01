@@ -122,13 +122,13 @@ body {
     z-index: 2;
 }
 .tabsection-top {
-    background-image: linear-gradient(to bottom, #fdf9db 0%, #f5e8a8 100%);
+    background-image: url(images/tabsection/tabsection.bg.png);
     background-repeat: repeat-x;
     background-position: center bottom;
+    background-color: #fdf9db;
     border-style: solid;
     border-color: #d3ca8e;
     border-width: 1px 1px 0 1px;
-    background-color: #fdf9db;
     margin: 0 2px;
     padding: 4px 5px;
     border-top-left-radius: 8px;
@@ -159,29 +159,24 @@ body {
     display: flex;
 }
 .tabsection-left {
-    background-image: linear-gradient(to bottom, #fdf9db 0%, #fdf9db 100%);
+    background-image: url(images/tabsection/tabsection.bottom.left.png);
     background-repeat: no-repeat;
     background-position: left top;
     width: 11px;
     height: 11px;
-    border-left: 1px solid #d3ca8e;
-    border-bottom-left-radius: 8px;
-    border-bottom: 1px solid #d3ca8e;
 }
 .tabsection-right {
-    background-position: right top;
+    background-image: url(images/tabsection/tabsection.bottom.right.png);
     background-repeat: no-repeat;
+    background-position: right top;
     width: 11px;
     height: 11px;
-    border-right: 1px solid #d3ca8e;
-    border-bottom-right-radius: 8px;
-    border-bottom: 1px solid #d3ca8e;
 }
 .tabsection-center {
     flex: 1;
     height: 11px;
-    background: #fdf9db;
-    border-bottom: 1px solid #d3ca8e;
+    background-image: url(images/tabsection/tabsection.bottom.png);
+    background-repeat: repeat-x;
 }
 
 /* ============================================================
@@ -189,7 +184,8 @@ body {
    ============================================================ */
 .user-info-bar {
     background-color: #f3e9a4;
-    background-image: linear-gradient(to bottom, #f9eebe 0%, #f3e9a4 100%);
+    background-image: url(images/studentbar/header.bg.transparent.png);
+    background-repeat: repeat-x;
     border: solid 1px #d3ca8e;
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
@@ -236,15 +232,17 @@ body {
    ============================================================ */
 .main-container {
     margin: 8px;
-    background: #f8f8ff;
+    background-image: url(images/section.bg.png);
+    background-color: #f8f8ff; /* 图片缺失时的回退色 */
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
     padding: 0;
 }
 
 .section-bg {
-    background-image: linear-gradient(to bottom, #f0f4fa 0%, #e8eef5 30%, #e0e6f0 100%);
+    background-image: url(images/gradient.subtle.png);
     background-repeat: repeat-x;
+    background-position: top;
     border-radius: 8px;
     padding: 5px;
 }
@@ -488,7 +486,9 @@ body {
     margin-top: 15px;
     position: relative;
     box-shadow: 4px 4px 4px #DDDDDD;
-    background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 30%);
+    background-image: url(images/gradient.height-100.png);
+    background-repeat: repeat-x;
+    background-position: left -10px;
     min-height: 50px;
 }
 
