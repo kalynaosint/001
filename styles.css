@@ -1424,3 +1424,349 @@ body {
     }
     .sub-nav { display: block; overflow-x: auto; white-space: nowrap; }
 }
+
+/* ============================================================
+   OASIS exact-ish skin override
+   Source structure to mimic: /controls/toptabs/toptabs.css
+   OASIS HTML uses: .TopTabs .TopTab .Selected .TopTabLeft/.Right/.Center,
+   .tabsection-top, .toptabs-subtabs, .section-container/.section-header,
+   and jQuery UI accordion headers for form rows.
+   This block maps your .top-nav/.sub-nav/.main-container/.form-card to that look.
+   ============================================================ */
+
+:root {
+    --oasis-blue-dark: #002855;
+    --oasis-blue: #244872;
+    --oasis-tab-border: #d2bf5d;
+    --oasis-tab-yellow-top: #fff9d5;
+    --oasis-tab-yellow-mid: #f6e990;
+    --oasis-tab-yellow-bottom: #d8bd35;
+    --oasis-tab-selected-top: #ffffff;
+    --oasis-tab-selected-bottom: #fff6c7;
+    --oasis-panel-blue-top: #d9eafd;
+    --oasis-panel-blue-bottom: #a9c7ee;
+    --oasis-row-blue-top: #eaf7ff;
+    --oasis-row-blue-bottom: #dff0fb;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #333;
+    background-color: #e8eef8;
+    background-image:
+        linear-gradient(116deg, rgba(255,255,255,.78) 0 10%, rgba(255,255,255,0) 10% 100%),
+        linear-gradient(130deg, rgba(132,162,218,.18) 0 4%, rgba(255,255,255,0) 4% 100%),
+        radial-gradient(circle at 18px 18px, rgba(97,123,170,.18) 1px, transparent 1.4px);
+    background-size: 420px 220px, 360px 240px, 92px 92px;
+}
+
+/* ---------- OASIS bookmark tabs ---------- */
+.top-nav {
+    margin: 0 4px;
+    height: 28px;
+    padding: 0 0 0 18px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+    position: relative;
+    z-index: 30;
+}
+
+.top-nav ul {
+    display: flex;
+    align-items: flex-end;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: visible;
+}
+
+.top-nav li {
+    position: relative;
+    margin: 0 0 0 -10px;      /* 关键：互相压住，像书签叠起来 */
+    height: 28px;
+    z-index: 1;
+}
+.top-nav li:first-child { margin-left: 0; }
+.top-nav li:nth-child(1) { z-index: 10; }
+.top-nav li:nth-child(2) { z-index: 9; }
+.top-nav li:nth-child(3) { z-index: 8; }
+.top-nav li:nth-child(4) { z-index: 7; }
+.top-nav li:nth-child(5) { z-index: 6; }
+.top-nav li:nth-child(6) { z-index: 5; }
+
+.top-nav a {
+    display: block;
+    min-width: 112px;
+    height: 28px;
+    line-height: 25px;
+    padding: 0 24px;
+    text-align: center;
+    color: #000;
+    text-decoration: none;
+    font-weight: normal;
+    font-size: 12px;
+    border: 1px solid var(--oasis-tab-border);
+    border-bottom: 0;
+    border-radius: 14px 14px 0 0 / 12px 12px 0 0;
+    background: linear-gradient(to bottom,
+        var(--oasis-tab-yellow-top) 0%,
+        #fff3b5 35%,
+        var(--oasis-tab-yellow-mid) 68%,
+        var(--oasis-tab-yellow-bottom) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.92),
+        inset 0 -8px 12px rgba(185,154,25,.16),
+        1px 0 0 rgba(255,255,255,.55);
+    position: relative;
+    overflow: visible;
+}
+
+/* 左右两个小“耳朵”，模拟 OASIS 图片切片 tab */
+.top-nav a::before,
+.top-nav a::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    width: 18px;
+    height: 12px;
+    background: inherit;
+    border-bottom: 1px solid var(--oasis-tab-border);
+    z-index: -1;
+}
+.top-nav a::before {
+    left: -10px;
+    border-left: 1px solid var(--oasis-tab-border);
+    border-radius: 12px 0 0 0;
+    transform: skewX(-18deg);
+}
+.top-nav a::after {
+    right: -10px;
+    border-right: 1px solid var(--oasis-tab-border);
+    border-radius: 0 12px 0 0;
+    transform: skewX(18deg);
+}
+
+.top-nav a:hover {
+    background: linear-gradient(to bottom, #fffde4 0%, #fff3aa 45%, #e2cc47 100%);
+    color: #000;
+}
+
+/* 当前 tab 抽到最上面 + 更白 + 盖住下面黄条 */
+.top-nav li:has(a.active) {
+    z-index: 99;
+}
+.top-nav a.active {
+    height: 32px;
+    line-height: 29px;
+    margin-top: -4px;
+    padding-bottom: 4px;
+    color: #000;
+    font-weight: bold;
+    background: linear-gradient(to bottom,
+        var(--oasis-tab-selected-top) 0%,
+        #fffdf2 38%,
+        #fff4bc 74%,
+        #f1da68 100%);
+    border-color: var(--oasis-tab-border);
+    box-shadow:
+        inset 0 1px 0 #fff,
+        0 -1px 2px rgba(0,0,0,.06),
+        1px 0 2px rgba(140,110,20,.18);
+    z-index: 100;
+}
+.top-nav a.active::before,
+.top-nav a.active::after {
+    background: inherit;
+}
+
+/* ---------- Yellow subtab strip ---------- */
+.sub-nav {
+    margin: 0 4px;
+    padding: 5px 12px 6px 12px;
+    min-height: 28px;
+    background: linear-gradient(to bottom, #fffdf1 0%, #fff8cb 55%, #f7efb6 100%);
+    border: 1px solid var(--oasis-tab-border);
+    border-radius: 8px 8px 0 0;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        0 1px 3px rgba(116,92,15,.22);
+    position: relative;
+    z-index: 20;
+}
+.sub-nav a {
+    color: #000;
+    margin: 0 6px;
+    text-decoration: none;
+    line-height: 16px;
+}
+.sub-nav a:first-child { margin-left: 0; }
+.sub-nav a.active {
+    color: #000;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.sub-nav .separator {
+    color: #6a5830;
+    margin: 0 4px;
+}
+
+.user-info-bar {
+    margin: 0 4px;
+    padding: 8px 14px;
+    background: linear-gradient(to bottom, #fff9d7 0%, #fff3bd 100%);
+    border-left: 1px solid var(--oasis-tab-border);
+    border-right: 1px solid var(--oasis-tab-border);
+    border-bottom: 1px solid var(--oasis-tab-border);
+    border-radius: 0 0 8px 8px;
+    color: #333;
+    font-size: 12px;
+}
+
+/* ---------- OASIS section panel ---------- */
+.main-container {
+    margin: 10px 12px;
+    border: 1px solid #9bb9df;
+    border-radius: 6px;
+    background: rgba(255,255,255,.88);
+    box-shadow: 0 2px 6px rgba(80,110,160,.34);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 7px 14px;
+    border: 0;
+    border-bottom: 1px solid #8fb1dd;
+    border-radius: 0;
+    background: linear-gradient(to bottom, var(--oasis-panel-blue-top) 0%, var(--oasis-panel-blue-bottom) 100%);
+    color: #164b86;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+.page-title-bar {
+    padding: 14px 14px 10px 14px;
+    border-bottom: 0;
+}
+.page-title {
+    color: #244872;
+    font-size: 23px;
+    font-weight: normal;
+}
+.page-title-sub {
+    font-size: 12px;
+    color: #333;
+    font-style: normal;
+}
+
+.btn-primary {
+    color: #fff;
+    border: 1px solid #2388c8;
+    border-radius: 5px;
+    background: linear-gradient(to bottom, #41c7f2 0%, #188ed0 48%, #0878bd 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 1px 2px rgba(0,0,0,.18);
+}
+
+/* ---------- Accordion rows like OASIS ---------- */
+.form-card {
+    margin: 4px 10px 6px 10px;
+    padding: 0;
+    border: 1px solid #c2d8ec;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: none;
+    overflow: hidden;
+    transition: border-color .22s ease, box-shadow .22s ease;
+}
+
+.form-card-header {
+    min-height: 27px;
+    margin: 0;
+    padding: 4px 8px;
+    align-items: center;
+    background: linear-gradient(to bottom, var(--oasis-row-blue-top) 0%, var(--oasis-row-blue-bottom) 100%);
+    border-bottom: 1px solid transparent;
+}
+.form-card.expanded .form-card-header {
+    border-bottom-color: #c8d4e8;
+}
+
+.form-card-title {
+    color: #0b579c;
+    font-size: 12px;
+    font-weight: bold;
+}
+.form-card-title .triangle {
+    color: #77afd8;
+    margin-right: 8px;
+    font-size: 10px;
+}
+.form-card-title .sub {
+    color: #0b579c;
+    font-weight: normal;
+}
+.form-card:not(.expanded) .form-card-title,
+.form-card:not(.expanded) .form-card-title .sub {
+    color: #0b579c;
+}
+.form-card:not(.expanded) .form-card-title .triangle {
+    color: #77afd8;
+}
+
+.form-card-status {
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 0;
+}
+.status-in-progress { color: #ff7700; }
+.status-approved { color: #008000; }
+.status-rejected { color: #b00000; }
+
+.form-card-body {
+    padding: 0 10px;
+    background: #fff;
+}
+.form-card.expanded .form-card-body {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.form-card-cancel {
+    top: 38px;
+    right: 14px;
+}
+
+@media (max-width: 700px) {
+    .top-nav {
+        height: auto;
+        padding-left: 12px;
+    }
+    .top-nav ul {
+        height: auto;
+        flex-wrap: wrap;
+        row-gap: 0;
+    }
+    .top-nav li {
+        margin-left: -8px;
+        margin-bottom: 0;
+    }
+    .top-nav a {
+        min-width: auto;
+        padding: 0 18px;
+        height: 28px;
+        line-height: 25px;
+        font-size: 12px;
+    }
+    .top-nav a.active {
+        height: 31px;
+        line-height: 28px;
+    }
+    .sub-nav {
+        display: block;
+        padding: 6px 10px;
+    }
+}
