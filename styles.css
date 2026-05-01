@@ -146,9 +146,10 @@ body {
 .tabsection {
     position: relative;
     z-index: 2;
-    /* 居中收紧,对齐top-nav */
+    /* tabsection 几乎全宽,只留少量边距 - 这是OASIS的特征 */
     max-width: 1400px;
     margin: 0 auto;
+    padding: 0 6px; /* 让黄色条比蓝色内容区更宽 */
 }
 .tabsection-top {
     background-image: url(images/tabsection/tabsection.bg.png);
@@ -220,9 +221,12 @@ body {
     box-shadow: 4px 4px 4px #dddddd;
     padding: 8px 14px;
     color: #473F09;
-    /* 居中 + 限制最大宽度 */
+    /* 居中 + 与 tabsection 同宽 */
     max-width: 1400px;
     margin: 10px auto;
+    /* 用 calc 让两边留 6px,和 tabsection 对齐 */
+    width: calc(100% - 12px);
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -264,23 +268,24 @@ body {
    核心: 圆角包圆角的层叠效果 + 内阴影
    ============================================================ */
 .main-container {
-    /* 居中 + 限制最大宽度 */
+    /* 比tabsection更窄 - 模仿OASIS "镶嵌"在圆弧之间的效果 */
     max-width: 1400px;
+    /* 比tabsection的6px padding再多收紧一些 */
     margin: 0 auto 12px;
-    background-image: url(images/section.bg.png);
-    /* 图片缺失时的回退色: OASIS section.bg.png 是淡蓝紫色纹理 */
+    padding: 0 16px 0 16px; /* 内边距让蓝色内容区两边比tabsection多缩进 */
+    background: transparent; /* 关键: 外圈不画背景,只让内层section.bg显示 */
+    box-shadow: none;
+    border-radius: 0;
+}
+
+/* 真正的蓝色内容区移到 section-bg 上 */
+.section-bg {
+    background-image: url(images/section.bg.png), url(images/gradient.subtle.png);
+    background-repeat: repeat, repeat-x;
+    background-position: top left, top;
     background-color: #c8d4ec;
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
-    padding: 0;
-}
-
-.section-bg {
-    background-image: url(images/gradient.subtle.png);
-    background-repeat: repeat-x;
-    background-position: top;
-    /* gradient缺失时不要叠加额外颜色,让上层section.bg显示 */
-    border-radius: 8px;
     padding: 5px;
 }
 
