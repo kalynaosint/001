@@ -21,18 +21,21 @@ let _onUpdate = null;
 requestsRef.on("value", snapshot => {
     const val = snapshot.val() || {};
     _cachedRequests = Object.values(val).map(r => {
-        // 还原 syncToPlatforms 为数组（Firebase 可能转成对象）
+        // 还原 syncToPlatforms 为数组
         if (r.syncToPlatforms && !Array.isArray(r.syncToPlatforms)) {
             r.syncToPlatforms = Object.values(r.syncToPlatforms);
         }
-        // 还原每个 step 的 votes
+        // 还原每个 step 的 votes 为数组
         if (r.steps) {
             Object.keys(r.steps).forEach(k => {
                 const v = r.steps[k].votes;
-                if (!v || v._placeholder) {
+                if (!v) {
                     r.steps[k].votes = [];
-                } else if (!Array.isArray(v)) {
-                    r.steps[k].votes = Object.values(v).filter(x => !x._placeholder);
+                } else if (Array.isArray(v)) {
+                    r.steps[k].votes = v;
+                } else {
+                    // 对象形式：取 values，过滤掉 __keep 占位
+                    r.steps[k].votes = Object.values(v).filter(x => x && typeof x === "object" && x.userId);
                 }
             });
         }
@@ -80,14 +83,16 @@ function loadRequests() {
 function saveRequests(requests) {
     const obj = {};
     requests.forEach(r => {
-        // 深拷贝
         const copy = JSON.parse(JSON.stringify(r));
-        // 确保 steps 存在且每个 step 的 votes 不为空数组
         if (copy.steps) {
             Object.keys(copy.steps).forEach(k => {
-                if (!copy.steps[k].votes || copy.steps[k].votes.length === 0) {
-                    copy.steps[k].votes = { _placeholder: true };
-                }
+                // 把 votes 数组转为对象（用 userId 做 key），避免空数组被吞 + 数组被转成对象的混乱
+                const votesArr = copy.steps[k].votes || [];
+                const votesObj = {};
+                votesArr.forEach(v => { votesObj[v.userId] = v; });
+                // 即使是空对象，也加一个占位字段保证节点存在
+                votesObj.__keep = true;
+                copy.steps[k].votes = votesObj;
             });
         }
         obj[r.id] = copy;
