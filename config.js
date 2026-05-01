@@ -21,30 +21,30 @@
 
 const MEMBERS = [
     // ===== 1 名组长 =====
-    { id: "leader01", name: "组长",   password: "leader123",   role: "leader" },
+    { id: "leader01", name: "组长",   password: "Ua20220224",   role: "leader" },
 
     // ===== 3 名运营者 =====
-    { id: "user01", name: "b站负责人", password: "bilibili123", role: "operator_bilibili" },
+    { id: "user01", name: "b站负责人", password: "Ua20220224", role: "operator_bilibili" },
     { id: "user02", name: "CSFS（抖音）", password: "Cc3310121029",   role: "operator_douyin" },
     { id: "user03", name: "CSFS（知乎）", password: "Cc3310121029",    role: "operator_zhihu" },
 
     // ===== 16 名普通组员 =====
-    { id: "user04", name: "成员A", password: "pass04", role: "member" },
-    { id: "user05", name: "成员B", password: "pass05", role: "member" },
-    { id: "user06", name: "成员C", password: "pass06", role: "member" },
-    { id: "user07", name: "成员D", password: "pass07", role: "member" },
-    { id: "user08", name: "成员E", password: "pass08", role: "member" },
-    { id: "user09", name: "成员F", password: "pass09", role: "member" },
-    { id: "user10", name: "成员G", password: "pass10", role: "member" },
-    { id: "user11", name: "成员H", password: "pass11", role: "member" },
-    { id: "user12", name: "成员I", password: "pass12", role: "member" },
-    { id: "user13", name: "成员J", password: "pass13", role: "member" },
-    { id: "user14", name: "成员K", password: "pass14", role: "member" },
-    { id: "user15", name: "成员L", password: "pass15", role: "member" },
-    { id: "user16", name: "成员M", password: "pass16", role: "member" },
-    { id: "user17", name: "成员N", password: "pass17", role: "member" },
-    { id: "user18", name: "成员O", password: "pass18", role: "member" },
-    { id: "user19", name: "成员P", password: "pass19", role: "member" },
+    { id: "user04", name: "乐子", password: "Ua20220224", role: "member" },
+    { id: "user05", name: "Big", password: "Ua20220224", role: "member" },
+    { id: "user06", name: "近卫掷弹兵官", password: "Ua20220224", role: "member" },
+    { id: "user07", name: "D.Kaufman", password: "Ua20220224", role: "member" },
+    { id: "user08", name: "怠惰怠惰璃", password: "Ua20220224", role: "member" },
+    { id: "user09", name: "俄国酷老头", password: "Ua20220224", role: "member" },
+    { id: "user10", name: "hdg", password: "Ua20220224", role: "member" },
+    { id: "user11", name: "火星人退散", password: "Ua20220224", role: "member" },
+    { id: "user12", name: "浆果猫", password: "Ua20220224", role: "member" },
+    { id: "user13", name: "冷亚尔的T-90M", password: "Ua20220224", role: "member" },
+    { id: "user14", name: "路易斯小石", password: "Ua20220224", role: "member" },
+    { id: "user15", name: "施富德", password: "Ua20220224", role: "member" },
+    { id: "user16", name: "田园の灰狐", password: "Ua20220224", role: "member" },
+    { id: "user17", name: "希腊大战游牧民族", password: "Ua20220224", role: "member" },
+    { id: "user18", name: "语冰", password: "Ua20220224", role: "member" },
+    { id: "user19", name: "101egale", password: "Ua20220224", role: "member" },
 ];
 
 /* ============================================================
