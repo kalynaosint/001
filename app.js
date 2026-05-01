@@ -268,7 +268,7 @@ function computeRequestStatus(request) {
 // ============================================================
 // 投票操作
 // ============================================================
-function castVote(requestId, stepKey, userId, choice) {
+function castVote(requestId, stepKey, userId, choice, comment) {
     const requests = loadRequests();
     const req = requests.find(r => r.id === requestId);
     if (!req) return { ok: false, msg: "请求不存在" };
@@ -281,23 +281,45 @@ function castVote(requestId, stepKey, userId, choice) {
         return { ok: false, msg: "你是作者，无法对自己的内容投反对票（默认同意）" };
     }
 
+    // 反对票必须填写评论
+    if (choice === "reject" && (!comment || !comment.trim())) {
+        return { ok: false, msg: "投反对票必须填写理由" };
+    }
+
     // 检查是否过截止
     const now = Date.now();
     if (now >= req.submittedAt + getStepDuration(stepKey)) {
         return { ok: false, msg: "投票已截止" };
     }
 
+    const vote = {
+        userId,
+        choice,
+        timestamp: now,
+        comment: (comment || "").trim() || null,
+    };
+
+    // 原子写入: 只写这一票对应的路径,不动其他数据
+    requestsRef
+        .child(requestId)
+        .child("steps")
+        .child(stepKey)
+        .child("votes")
+        .child(userId)
+        .set(vote);
+
+    // 本地立即更新,UI不用等Firebase回推
     if (!step.votes) step.votes = [];
-    // 一人一票，可改票
+    if (!Array.isArray(step.votes)) step.votes = [];
     const existing = step.votes.find(v => v.userId === userId);
     if (existing) {
         existing.choice = choice;
         existing.timestamp = now;
+        existing.comment = vote.comment;
     } else {
-        step.votes.push({ userId, choice, timestamp: now });
+        step.votes.push(vote);
     }
 
-    saveRequests(requests);
     return { ok: true };
 }
 
