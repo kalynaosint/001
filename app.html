@@ -326,38 +326,18 @@ function renderRequestList(showAll) {
 
     container.innerHTML = list.map(req => renderRequestCard(req)).join("");
 
-    // 初始化已展开卡片的真实高度，保证第一次收起也有动画
-    container.querySelectorAll(".form-card.expanded .form-card-body").forEach(body => {
-        body.style.maxHeight = body.scrollHeight + "px";
-    });
-
-    function animateToggleCard(card) {
-        const body = card.querySelector(".form-card-body");
-        if (!body) return;
-
-        const opening = !card.classList.contains("expanded");
-        if (opening) {
-            card.classList.add("expanded");
-            body.style.maxHeight = "0px";
-            requestAnimationFrame(() => {
-                body.style.maxHeight = body.scrollHeight + "px";
-            });
-        } else {
-            body.style.maxHeight = body.scrollHeight + "px";
-            body.offsetHeight;
-            card.classList.remove("expanded");
-            body.style.maxHeight = "0px";
-        }
-    }
-
     // 绑定折叠/展开点击
     container.querySelectorAll("[data-toggle]").forEach(el => {
         el.addEventListener("click", function(e) {
             e.stopPropagation();
             const reqId = this.dataset.toggle;
             toggleCollapsed(reqId);
+            // 只切换当前卡片的expanded class,不重新渲染整个列表
+            // 这样CSS的transition才能正常播放动画
             const card = this.closest(".form-card");
-            if (card) animateToggleCard(card);
+            if (card) {
+                card.classList.toggle("expanded");
+            }
         });
     });
 
