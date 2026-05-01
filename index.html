@@ -10,16 +10,27 @@
 </head>
 <body>
 
-<!-- 顶部Tab导航（登录页禁用，仅展示） -->
-<div class="top-nav">
-    <ul>
-        <li><a href="#" class="active">登录</a></li>
+<!-- 顶部Tab导航 (OASIS sliding doors 结构) -->
+<div class="top-nav-wrapper">
+    <ul class="top-nav">
+        <li class="active">
+            <span class="tab-left"><span class="tab-right"><a class="tab-center" href="#">登录</a></span></span>
+        </li>
     </ul>
 </div>
 
 <!-- 子导航 -->
-<div class="sub-nav">
-    <a href="#" class="active">成员登录</a>
+<div class="tabsection">
+    <div class="tabsection-top">
+        <div class="toptabs-subtabs">
+            <a href="#" class="toptabs-subtab selected">成员登录</a>
+        </div>
+    </div>
+    <div class="tabsection-bottom-row">
+        <div class="tabsection-left"></div>
+        <div class="tabsection-center"></div>
+        <div class="tabsection-right"></div>
+    </div>
 </div>
 
 <!-- 登录卡片 -->
