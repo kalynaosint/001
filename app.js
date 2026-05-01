@@ -81,22 +81,25 @@ function loadRequests() {
 }
 
 function saveRequests(requests) {
-    const obj = {};
+    const updates = {};
+
     requests.forEach(r => {
         const copy = JSON.parse(JSON.stringify(r));
+
         if (copy.steps) {
             Object.keys(copy.steps).forEach(k => {
-                // 把 votes 数组转为对象（用 userId 做 key），避免空数组被吞 + 数组被转成对象的混乱
                 const votesArr = copy.steps[k].votes || [];
                 const votesObj = {};
                 votesArr.forEach(v => { votesObj[v.userId] = v; });
-                // 即使是空对象，也加一个占位字段保证节点存在
                 votesObj.__keep = true;
                 copy.steps[k].votes = votesObj;
             });
         }
-        obj[r.id] = copy;
+
+        updates["requests/" + copy.id] = copy;
     });
+
+    return db.ref().update(updates);
 }
 
 function loadSession() {
@@ -342,9 +345,16 @@ function createRequest({ authorId, title, content, authorPlatform, syncToPlatfor
     syncToPlatforms.forEach(p => {
         req.steps["sync_" + p] = { targetPlatform: p, votes: [] };
     });
-    requests.push(req);
-    saveRequests(requests);
-    return req;
+    const copy = JSON.parse(JSON.stringify(req));
+
+      Object.keys(copy.steps).forEach(k => {
+          copy.steps[k].votes = { __keep: true };
+      });
+      
+      requestsRef.child(copy.id).set(copy);
+      
+      requests.push(req);
+      return req;
 }
 
 function deleteRequest(requestId, userId) {
