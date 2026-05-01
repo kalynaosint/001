@@ -1,10 +1,3 @@
-/* ============================================================
-   OASIS 风格复刻样式
-   - 顶部 tabs 用真实 sliding doors 技术 (3层嵌套 + 切片PNG)
-   - 步骤框基于 workflow.css 的真实样式
-   - 状态颜色全部对齐 OASIS 原版
-   ============================================================ */
-
 * {
     box-sizing: border-box;
 }
@@ -191,13 +184,16 @@ body {
     box-shadow: 4px 4px 4px #dddddd;
     padding: 8px 12px;
     color: #473F09;
-    margin: 10px 8px;
+    /* 上 margin 用负值,让它略微"嵌入"上面tabsection的圆角内部 */
+    margin: -3px 8px 10px 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
     font-size: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 .user-info-bar .role-tag {
@@ -233,7 +229,8 @@ body {
 .main-container {
     margin: 8px;
     background-image: url(images/section.bg.png);
-    background-color: #f8f8ff; /* 图片缺失时的回退色 */
+    /* 图片缺失时的回退色: 米白带一点点暖色 (接近OASIS section.bg.png的平均色) */
+    background-color: #f0eee5;
     border-radius: 8px;
     box-shadow: 4px 4px 4px #dddddd;
     padding: 0;
@@ -243,6 +240,7 @@ body {
     background-image: url(images/gradient.subtle.png);
     background-repeat: repeat-x;
     background-position: top;
+    /* gradient缺失时不要叠加额外颜色,让上层section.bg显示 */
     border-radius: 8px;
     padding: 5px;
 }
