@@ -4,10 +4,10 @@
 
 // ============= Firebase 配置 =============
 const firebaseConfig = {
-    apiKey: "AIzaSyAjukPjldgy9utSn-qLzbQgawx1Mzh4vDs",
-    authDomain: "voting-site-63369.firebaseapp.com",
-    databaseURL: "https://voting-site-63369-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "voting-site-63369",
+    apiKey: "AIzaSyBPUek82Wsu_WLbgpRwCSlgZncLcC85b30",
+    authDomain: "vote-site-7058e.firebaseapp.com",
+    databaseURL: "https://vote-site-7058e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "vote-site-7058e",
 };
 
 firebase.initializeApp(firebaseConfig);
