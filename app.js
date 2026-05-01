@@ -2,6 +2,28 @@
    核心逻辑
    ============================================================ */
 
+// ============= Firebase 配置 =============
+const firebaseConfig = {
+    apiKey: "AIzaSyAjukPjldgy9utSn-qLzbQgawx1Mzh4vDs",
+    authDomain: "voting-site-63369.firebaseapp.com",
+    databaseURL: "https://voting-site-63369-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "voting-site-63369",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const requestsRef = db.ref("requests");
+
+// 内存缓存 + 实时订阅
+let _cachedRequests = [];
+let _onUpdate = null;
+
+requestsRef.on("value", snapshot => {
+    const val = snapshot.val() || {};
+    _cachedRequests = Object.values(val);
+    if (_onUpdate) _onUpdate();
+});
+
 // ---- 平台映射 ----
 const PLATFORMS = {
     bilibili: { name: "Bilibili", className: "platform-bilibili", operatorRole: "operator_bilibili" },
