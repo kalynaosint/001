@@ -842,6 +842,113 @@ body {
     color: #555;
 }
 
+/* ============================================================
+   评论功能
+   ============================================================ */
+/* 评论输入框 (默认隐藏) */
+.vote-comment-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff7df;
+    border: 1px solid #ffda5b;
+    border-radius: 5px;
+}
+
+.vote-comment-hint {
+    font-size: 12px;
+    color: #5a4a1a;
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.vote-comment-textarea {
+    width: 100%;
+    padding: 6px 8px;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+    border: 1px solid #c9b870;
+    border-radius: 3px;
+    background: #fff;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 60px;
+}
+.vote-comment-textarea:focus {
+    outline: none;
+    border-color: #ffcd77;
+}
+
+.vote-comment-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.vote-comment-charcount {
+    margin-left: auto;
+}
+
+/* 评论列表 (展示其他人留下的评论) */
+.vote-comments {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dotted #ccc;
+}
+
+.vote-comments-title {
+    font-weight: bold;
+    color: #244872;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.vote-comment {
+    background: #ffffed;
+    border: 1px dashed #DDDDDD;
+    border-width: 1px 0;
+    padding: 6px 10px;
+    margin: 4px 0;
+    font-size: 11px;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.vote-comment-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.vote-comment-tag.approve {
+    background: #def8e6;
+    color: #008000;
+    border: 1px solid #5aa85a;
+}
+.vote-comment-tag.reject {
+    background: #ffe5e5;
+    color: #CC0000;
+    border: 1px solid #a85a5a;
+}
+
+.vote-comment-text {
+    color: #333;
+    word-break: break-word;
+    flex: 1;
+    white-space: pre-wrap;
+}
+
+/* 反对评论的整体颜色稍微偏红 */
+.vote-comment.vote-comment-reject {
+    background: #fff5f5;
+}
+
 .content-body {
     background: #ffffed;
     border: 1px dashed #DDDDDD;
@@ -1002,6 +1109,29 @@ body {
         padding: 10px 8px;
         font-size: 13px;
         text-align: center;
+    }
+
+    /* 评论框移动端 */
+    .vote-comment-textarea {
+        font-size: 16px; /* iOS 防自动放大 */
+        padding: 8px;
+    }
+    .vote-comment-actions {
+        gap: 6px;
+    }
+    .vote-comment-actions .btn {
+        flex: 1;
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    .vote-comment-charcount {
+        flex-basis: 100%;
+        margin-left: 0;
+        text-align: center;
+        margin-top: 4px;
+    }
+    .vote-comment {
+        font-size: 12px;
     }
 
     /* 登录页 */
