@@ -97,7 +97,6 @@ function saveRequests(requests) {
         }
         obj[r.id] = copy;
     });
-    requestsRef.set(obj);
 }
 
 function loadSession() {
