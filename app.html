@@ -327,10 +327,10 @@ document.getElementById("newRequestForm").addEventListener("submit", function(e)
         authorPlatform,
         syncToPlatforms: syncTo,
     });
-
-    // 重置并跳回列表
+    
     this.reset();
     switchView("myforms");
+    renderRequestList(false);
 });
 
 // ============================================================
@@ -713,6 +713,13 @@ setInterval(() => {
         renderRequestList(currentTab === "all");
     }
 }, 60 * 1000);
+
+// Firebase 数据变化后自动刷新当前页面
+_onUpdate = function() {
+    if (currentTab === "myforms" || currentTab === "all") {
+        renderRequestList(currentTab === "all");
+    }
+};
 
 // 初始化
 switchView("myforms");
