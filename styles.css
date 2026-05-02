@@ -349,19 +349,22 @@ body {
    ============================================================ */
 .form-card {
     margin: 8px 5px;
-    padding: 8px 12px 10px;
+    padding: 0;
     position: relative;
-    background: #fafafa;
-    border: 1px solid #c8d4e8;
-    border-radius: 6px;
+    background-color: #dfeffc;
+    background-image: url(images/ui-bg_glass_85_dfeffc_1x400.png);
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
+    border: 1px solid #c5dbec;
+    border-radius: 4px;
     box-shadow: 1px 1px 2px rgba(0,0,0,0.05);
-    transition: background 0.25s ease, border-color 0.25s ease;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 /* 折叠状态 */
 .form-card:not(.expanded) {
-    background: #f5f5f5;
-    border-color: #d0dcec;
+    background-color: #d0e5f5;
+    border-color: #79b7e7;
 }
 
 .form-card-header {
@@ -372,6 +375,8 @@ body {
     cursor: pointer;
     user-select: none;
     flex-wrap: wrap;
+    padding: 8px 12px;
+    border-bottom: 1px solid #c5dbec;
 }
 
 /* 标题 + 副标题区,左侧 */
@@ -431,8 +436,8 @@ body {
 /* 取消按钮: 绝对定位在卡片右上角 */
 .form-card-cancel {
     position: absolute;
-    top: 8px;
-    right: 12px;
+    top: 6px;
+    right: 10px;
     padding: 3px 10px;
     font-size: 11px;
     z-index: 1;
@@ -448,11 +453,13 @@ body {
     max-height: 0;
     opacity: 0;
     transition: max-height 0.35s ease, opacity 0.25s ease 0.05s;
+    padding: 0 12px;
 }
+
 .form-card.expanded .form-card-body {
     max-height: 5000px;
     opacity: 1;
-    margin-top: 6px;
+    padding: 10px 12px 12px 12px;
 }
 
 /* ============================================================
