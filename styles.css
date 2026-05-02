@@ -910,14 +910,15 @@ body {
     border: 1px dashed #DDDDDD;
     border-width: 1px 0;
     margin-top: 4px;
-    padding: 4px 5px 4px 30px; /* 左边大留白给气泡编号 */
+    padding: 4px 5px 4px 30px;
     position: relative;
     font-size: 11px;
     line-height: 1.6;
+    transition: box-shadow 0.3s ease;
 }
 
-/* 编号气泡 - 浮在评论左边 */
-.comment .comment-number {
+/* 编号气泡 - 浮在评论左边 (评论列表中) */
+.comment > .comment-number {
     margin-left: -26px;
     margin-top: -2px;
     position: absolute;
@@ -929,11 +930,12 @@ body {
     background-repeat: no-repeat;
     font-size: 10px;
     color: #555;
+    cursor: pointer;
+    transition: background-image 0.2s ease;
 }
 
-.comment .comment-number i {
-    line-height: 1.6;
-    font-size: 11px;
+.comment > .comment-number:hover {
+    background-image: url(images/balloon-left-glow.png);
 }
 
 /* 评论文字 */
@@ -951,7 +953,6 @@ body {
     margin: 2px 0 0 0;
 }
 
-/* 状态颜色 (覆盖到 comment-by 内的span) */
 .comment .comment-by .status-color-Approved {
     color: #008000;
     font-weight: bold;
@@ -961,10 +962,66 @@ body {
     font-weight: bold;
 }
 
-/* 高亮效果 (点击对应步骤跳转过来时) */
+/* ============================================================
+   步骤框右上角的评论气泡 (.step-comment-icons)
+   ============================================================ */
+.step-comment-icons {
+    position: absolute;
+    top: -4px;
+    right: 6px;
+    display: flex;
+    gap: 2px;
+    z-index: 1;
+}
+
+.step-comment-icons .comment-number {
+    height: 19px;
+    width: 22px;
+    line-height: 1.7;
+    text-align: center;
+    background-image: url(images/balloon-left.png);
+    background-repeat: no-repeat;
+    font-size: 10px;
+    color: #555;
+    cursor: pointer;
+    transition: background-image 0.2s ease, transform 0.15s ease;
+}
+
+.step-comment-icons .comment-number:hover {
+    background-image: url(images/balloon-left-glow.png);
+    transform: scale(1.1);
+}
+
+/* ============================================================
+   高亮效果 - 双向关联时使用 balloon-left-glow.png + 橙色发光
+   ============================================================ */
+.comment-number.comment-highlight {
+    background-image: url(images/balloon-left-glow.png) !important;
+    animation: comment-bubble-pulse 1s ease 3;
+}
+
 .comment.comment-highlight {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(255, 180, 0, 0.9);
-    transition: box-shadow 0.3s ease;
+    animation: comment-pulse 1s ease 3;
+}
+
+/* 也让步骤框本身闪一下,让用户更容易找到 */
+.flow-step-box.comment-highlight {
+    box-shadow: 0 0 12px rgba(255, 180, 0, 0.7);
+}
+
+@keyframes comment-pulse {
+    0%, 100% {
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(255, 180, 0, 0.9);
+    }
+    50% {
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 14px rgba(255, 180, 0, 1);
+    }
+}
+
+@keyframes comment-bubble-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
 }
 
 .content-body {
