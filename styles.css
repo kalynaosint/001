@@ -387,12 +387,14 @@ body {
 
 .form-card-title .triangle {
     color: #d97706;
-    margin-right: 4px;
-    font-size: 11px;
+    margin-right: 6px;
+    font-size: 14px;
     display: inline-block;
     transition: transform 0.25s ease;
     width: 12px;
     text-align: center;
+    vertical-align: middle;
+    margin-top: -2px;
 }
 .form-card.expanded .form-card-title .triangle {
     transform: rotate(90deg);
@@ -488,12 +490,14 @@ body {
     /* 没有边框,只是颜色淡 */
 }
 
+/* step标签 (仿 OASIS .stage h4) - 黑色加粗,紧贴框上 */
 .flow-step-label {
     font-weight: bold;
     font-size: 12px;
-    color: #333;
-    margin-bottom: 4px;
-    margin-top: 0;
+    color: #000;
+    margin: 0 0 5px 0;
+    padding: 0 5px;
+    line-height: 1.3;
 }
 
 /* step 内框: OASIS的 .step */
@@ -512,6 +516,7 @@ body {
 }
 
 /* step 状态图标: 浮在框左上,白底盖住边框 (仿 .step .step-status > i) */
+/* 状态图标 (仿 OASIS .step-status > i): 浮在框左上,白底盖住边框 */
 .flow-checkbox {
     font-size: 21px;
     position: absolute;
@@ -520,11 +525,16 @@ body {
     background-color: white;
     line-height: 20px;
     padding: 0 2px;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 22px;
     text-align: center;
-    border-radius: 3px;
-    font-weight: bold;
+    border-radius: 0;
+    z-index: 1;
+}
+
+.flow-checkbox i {
+    line-height: 22px;
+    vertical-align: middle;
 }
 
 /* 已完成: 绿色勾 */
@@ -536,11 +546,9 @@ body {
     border-color: #8ac88a;
 }
 
-/* 进行中(当前): 橙色空心方框 */
+/* 进行中(当前): 橙色空心方框图标 */
 .flow-checkbox.checked-orange {
     color: #FF7800;
-    border: 2px solid #FF7800;
-    background: white;
 }
 .flow-step-box.pending-current {
     background-color: #fff7df;
@@ -736,6 +744,40 @@ body {
     color: #666;
     margin-top: 3px;
     font-style: italic;
+}
+
+/* ============================================================
+   "查看详情"按钮 (仿 OASIS .form-view)
+   ============================================================ */
+.form-view {
+    padding: 5px 10px;
+    margin-top: 8px;
+}
+
+.form-view-link {
+    display: inline-block;
+    padding: 5px 12px;
+    background: linear-gradient(to bottom, #f2f9fe 0%, #d6f0fd 100%);
+    color: #00309C !important;
+    border: 1px solid #bce9ff;
+    border-radius: 3px;
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.form-view-link:hover {
+    background: linear-gradient(to bottom, #fcfed5 0%, #fcfed5 100%);
+    text-decoration: none !important;
+}
+
+.form-view-link i {
+    margin-right: 4px;
+}
+
+/* 投票详情包裹 */
+.vote-details-wrapper {
+    margin-top: 6px;
 }
 
 /* ============================================================
