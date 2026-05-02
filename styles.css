@@ -516,24 +516,22 @@ body {
 }
 
 /* step 状态图标: 浮在框左上,白底盖住边框 (仿 .step .step-status > i) */
-/* 状态图标 (仿 OASIS .step-status > i): 浮在框左上,白底盖住边框 */
+/* 状态图标 (仿 OASIS .step-status > i): 浮在框左上,白底只盖边框 */
 .flow-checkbox {
     font-size: 21px;
     position: absolute;
-    top: -10px;
+    top: -5px;
     left: 10px;
     background-color: white;
-    line-height: 20px;
+    /* 关键: line-height 收紧, 让白底只是个细带子盖住边框 */
+    line-height: 10px;
     padding: 0 2px;
-    width: 26px;
-    height: 22px;
     text-align: center;
-    border-radius: 0;
     z-index: 1;
 }
 
 .flow-checkbox i {
-    line-height: 22px;
+    line-height: 1;
     vertical-align: middle;
 }
 
@@ -747,7 +745,7 @@ body {
 }
 
 /* ============================================================
-   "查看详情"按钮 (仿 OASIS .form-view)
+   "查看详情"按钮 (严格仿 OASIS .form-view 内的 .LinkButton)
    ============================================================ */
 .form-view {
     padding: 5px 10px;
@@ -756,19 +754,29 @@ body {
 
 .form-view-link {
     display: inline-block;
-    padding: 5px 12px;
-    background: linear-gradient(to bottom, #f2f9fe 0%, #d6f0fd 100%);
+    padding: 2px 10px;
+    /* OASIS 的 button.bg.gif 是从浅蓝到深蓝的渐变 */
+    background: linear-gradient(to bottom, #e8f1fb 0%, #bfd2ed 100%);
+    background-color: #bfd2ed;
+    border: solid 1px #0E61B7;
     color: #00309C !important;
-    border: 1px solid #bce9ff;
     border-radius: 3px;
     font-size: 12px;
-    text-decoration: none;
+    text-decoration: none !important;
     cursor: pointer;
+    line-height: 1.6;
 }
 
+/* hover: 淡黄色背景 (OASIS 标志性的 hover 反馈) */
 .form-view-link:hover {
-    background: linear-gradient(to bottom, #fcfed5 0%, #fcfed5 100%);
+    background: #FCFED5;
+    background-image: none;
     text-decoration: none !important;
+}
+
+/* active (按下瞬间): 颜色再深一点 */
+.form-view-link:active {
+    background: #f5f8d0;
 }
 
 .form-view-link i {
