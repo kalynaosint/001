@@ -432,6 +432,44 @@ function renderRequestList(showAll) {
             if (ok) renderRequestList(showAll);
         });
     });
+
+    // 评论气泡点击高亮 - 双向关联(步骤气泡<->评论气泡)
+    container.querySelectorAll(".comment-number[data-comment-id]").forEach(el => {
+        el.addEventListener("click", function(e) {
+            e.stopPropagation();
+            const commentId = this.dataset.commentId;
+            highlightComment(commentId, this);
+        });
+    });
+}
+
+// 高亮指定评论 + 对应步骤气泡, 滚动到评论位置
+function highlightComment(commentId, sourceEl) {
+    // 找到目标评论 div 和它所有相关的 comment-number 气泡
+    const targetComment = document.getElementById(commentId);
+    const allBubbles = document.querySelectorAll(`.comment-number[data-comment-id="${commentId}"]`);
+
+    // 移除其他评论的高亮 (避免叠加)
+    document.querySelectorAll(".comment.comment-highlight").forEach(c => {
+        if (c.id !== commentId) c.classList.remove("comment-highlight");
+    });
+    document.querySelectorAll(".comment-number.comment-highlight").forEach(b => {
+        if (b.dataset.commentId !== commentId) b.classList.remove("comment-highlight");
+    });
+
+    // 加高亮
+    if (targetComment) {
+        targetComment.classList.add("comment-highlight");
+        // 平滑滚动到评论位置
+        targetComment.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    allBubbles.forEach(b => b.classList.add("comment-highlight"));
+
+    // 3秒后自动取消高亮
+    setTimeout(() => {
+        if (targetComment) targetComment.classList.remove("comment-highlight");
+        allBubbles.forEach(b => b.classList.remove("comment-highlight"));
+    }, 3000);
 }
 
 function getNextDeadline(req) {
@@ -589,11 +627,31 @@ function renderStepBox({ label, result, stepKey, request, platform }) {
                   <div class="sub-line pending-text">已 ${result.totalVoters} 人参与 · ${formatRemaining(result.deadline)}</div>`;
     }
 
+    // 计算这一步收到了几条评论
+    const comments = (result.voters || [])
+        .filter(v => v.comment && v.comment.trim())
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    // 步骤右上角的评论气泡 (每条评论一个,数字对应)
+    let stepCommentIcons = "";
+    if (comments.length > 0) {
+        stepCommentIcons = `
+            <div class="step-comment-icons">
+                ${comments.map((c, i) => {
+                    const number = i + 1;
+                    const commentId = `comment-${stepKey}-${number}`;
+                    return `<div class="comment-number step-comment-number" data-comment-id="${commentId}" title="点击查看评论 ${number}">${number}</div>`;
+                }).join("")}
+            </div>
+        `;
+    }
+
     return `
         <div class="flow-step">
             <div class="flow-step-label">${escapeHtml(label)}</div>
             <div class="flow-step-box ${boxClass}">
                 <span class="flow-checkbox ${checkClass}">${checkSym}</span>
+                ${stepCommentIcons}
                 <div class="flow-step-detail">${detail}</div>
             </div>
         </div>
@@ -667,14 +725,15 @@ function renderVoteDetails(req, stepKey, platform, title) {
                     const isApprove = c.choice === "approve";
                     const statusLabel = isApprove ? "同意" : "反对";
                     const statusClass = isApprove ? "status-color-Approved" : "status-color-Denied";
-                    const iconClass = isApprove ? "fa-check" : "fa-times";
+                    const number = i + 1;
+                    // commentId: 用步骤名+评论序号生成稳定id
+                    const commentId = `comment-${stepKey}-${number}`;
                     return `
-                    <div class="comment comment-action">
-                        <div class="comment-number"><i class="fa ${iconClass} ${statusClass}"></i></div>
+                    <div class="comment comment-action" id="${commentId}" data-comment-id="${commentId}" data-step-key="${stepKey}">
+                        <div class="comment-number" data-comment-id="${commentId}" title="点击高亮对应步骤">${number}</div>
                         <span class="comment-text">${escapeHtml(c.comment)}</span>
                         <div class="comment-by">
-                            <span class="${statusClass}">${statusLabel}</span> · 匿名
-                            <span title="${dateStr}"> on ${dateStr}</span>
+                            <span class="${statusClass}">${statusLabel}</span> · 匿名 · <span title="${dateStr}">${dateStr}</span>
                         </div>
                     </div>`;
                 }).join("")}
