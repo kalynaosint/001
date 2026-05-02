@@ -614,7 +614,7 @@ function renderRequestCard(req) {
                 ${req.syncToPlatforms.length > 0 ? arrows + syncBoxes : ''}
             </div>
 
-            <div class="content-body" title="内容描述">${escapeHtml(req.content)}</div>
+            <div class="content-body" title="内容描述">${linkifyText(req.content)}</div>
 
             <div class="form-view">
                 <a href="#" class="form-view-link" data-view-toggle="${req.id}">
@@ -778,7 +778,7 @@ function renderVoteDetails(req, stepKey, platform, title) {
                     return `
                     <div class="comment comment-action" id="${commentId}" data-comment-id="${commentId}" data-step-key="${stepKey}">
                         <div class="comment-number" data-comment-id="${commentId}" title="点击高亮对应步骤">${number}</div>
-                        <span class="comment-text">${escapeHtml(c.comment)}</span>
+                        <span class="comment-text">${linkifyText(c.comment)}</span>
                         <div class="comment-by">
                             <span class="${statusClass}">${statusLabel}</span> · 匿名 · <span title="${dateStr}">${dateStr}</span>
                         </div>
