@@ -890,63 +890,81 @@ body {
     margin-left: auto;
 }
 
-/* 评论列表 (展示其他人留下的评论) */
-.vote-comments {
-    margin-top: 12px;
-    padding-top: 8px;
-    border-top: 1px dotted #ccc;
+/* ============================================================
+   评论列表 (OASIS workflow-comments + comment 完整复刻)
+   ============================================================ */
+.workflow-comments {
+    margin: 10px 0;
 }
 
-.vote-comments-title {
+.workflow-comments h4 {
+    margin: 0 0 5px 0;
+    padding-left: 5px;
+    font-size: 12px;
     font-weight: bold;
     color: #244872;
-    font-size: 12px;
-    margin-bottom: 8px;
 }
 
-.vote-comment {
-    background: #ffffed;
+.comment {
+    background-color: #ffffed;
     border: 1px dashed #DDDDDD;
     border-width: 1px 0;
-    padding: 6px 10px;
-    margin: 4px 0;
+    margin-top: 4px;
+    padding: 4px 5px 4px 30px; /* 左边大留白给气泡编号 */
+    position: relative;
     font-size: 11px;
     line-height: 1.6;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
 }
 
-.vote-comment-tag {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 3px;
+/* 编号气泡 - 浮在评论左边 */
+.comment .comment-number {
+    margin-left: -26px;
+    margin-top: -2px;
+    position: absolute;
+    height: 19px;
+    width: 22px;
+    line-height: 1.7;
+    text-align: center;
+    background-image: url(images/balloon-left.png);
+    background-repeat: no-repeat;
     font-size: 10px;
-    font-weight: bold;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-.vote-comment-tag.approve {
-    background: #def8e6;
-    color: #008000;
-    border: 1px solid #5aa85a;
-}
-.vote-comment-tag.reject {
-    background: #ffe5e5;
-    color: #CC0000;
-    border: 1px solid #a85a5a;
+    color: #555;
 }
 
-.vote-comment-text {
+.comment .comment-number i {
+    line-height: 1.6;
+    font-size: 11px;
+}
+
+/* 评论文字 */
+.comment .comment-text {
     color: #333;
     word-break: break-word;
-    flex: 1;
     white-space: pre-wrap;
+    display: block;
 }
 
-/* 反对评论的整体颜色稍微偏红 */
-.vote-comment.vote-comment-reject {
-    background: #fff5f5;
+/* 评论作者/时间行 - 灰色小字 */
+.comment .comment-by {
+    color: gray;
+    font-size: 10px;
+    margin: 2px 0 0 0;
+}
+
+/* 状态颜色 (覆盖到 comment-by 内的span) */
+.comment .comment-by .status-color-Approved {
+    color: #008000;
+    font-weight: bold;
+}
+.comment .comment-by .status-color-Denied {
+    color: #CC0000;
+    font-weight: bold;
+}
+
+/* 高亮效果 (点击对应步骤跳转过来时) */
+.comment.comment-highlight {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(255, 180, 0, 0.9);
+    transition: box-shadow 0.3s ease;
 }
 
 .content-body {
@@ -1130,8 +1148,11 @@ body {
         text-align: center;
         margin-top: 4px;
     }
-    .vote-comment {
+    .comment {
         font-size: 12px;
+    }
+    .comment .comment-by {
+        font-size: 11px;
     }
 
     /* 登录页 */
