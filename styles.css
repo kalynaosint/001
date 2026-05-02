@@ -364,7 +364,15 @@ body {
 /* 折叠状态 */
 .form-card:not(.expanded) {
     background-color: #d0e5f5;
+    background-image: url(images/ui-bg_glass_75_d0e5f5_1x400.png);
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
     border-color: #79b7e7;
+}
+
+.form-card:not(.expanded) .form-card-header {
+    padding: 4px 12px;
+    border-bottom: none;  /* 折叠时隐藏细线 */
 }
 
 .form-card-header {
