@@ -434,6 +434,23 @@ function renderRequestList(showAll) {
         });
     });
 
+    // "查看投票详情"按钮 - 切换显示/隐藏投票详情区
+    container.querySelectorAll("[data-view-toggle]").forEach(btn => {
+        btn.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const reqId = this.dataset.viewToggle;
+            const wrapper = container.querySelector(`[data-view-content="${reqId}"]`);
+            if (!wrapper) return;
+            const isHidden = wrapper.style.display === "none";
+            wrapper.style.display = isHidden ? "block" : "none";
+            // 切换按钮文字
+            this.innerHTML = isHidden
+                ? '<i class="fa fa-share"></i> 收起投票详情'
+                : '<i class="fa fa-share"></i> 查看投票详情';
+        });
+    });
+
     // 评论气泡点击高亮 - 双向关联(步骤气泡<->评论气泡)
     container.querySelectorAll(".comment-number[data-comment-id]").forEach(el => {
         el.addEventListener("click", function(e) {
@@ -526,8 +543,8 @@ function renderRequestCard(req) {
     const nextDeadline = getNextDeadline(req);
     const timeText = nextDeadline ? formatRemaining(nextDeadline) : "投票已结束";
     const collapsed = isCollapsed(req.id);
-    // 三角形统一为 ▶,展开时通过CSS旋转90度变成 ▼
-    const triangle = "▶";
+    // 三角形用 fa-caret-right,展开时通过CSS旋转90度变成 ▼
+    const triangle = '<i class="fa fa-caret-right"></i>';
 
     const ownResult = computeVoteResult(req, "ownPost");
     const platformOwn = req.authorPlatform;
@@ -544,7 +561,7 @@ function renderRequestCard(req) {
         <div class="flow-step">
             <div class="flow-step-label">提交</div>
             <div class="flow-step-box submitted">
-                <span class="flow-checkbox checked">✓</span>
+                <span class="flow-checkbox checked"><i class="fa fa-check-square-o"></i></span>
                 <div class="flow-step-detail">
                     <div class="main-line">已于 ${formatDate(req.submittedAt)} 提交</div>
                     <div class="sub-line">作者：${escapeHtml(authorName)}</div>
@@ -564,9 +581,9 @@ function renderRequestCard(req) {
             platform: p,
             isFirst: false,
         });
-    }).join('<div class="flow-arrow">▶</div>');
+    }).join('<div class="flow-arrow"><i class="fa fa-arrow-right"></i></div>');
 
-    const arrows = '<div class="flow-arrow">▶</div>';
+    const arrows = '<div class="flow-arrow"><i class="fa fa-arrow-right"></i></div>';
 
     const cancelBtn = (req.authorId === currentUser.id && overallStatus === "in-progress")
         ? `<button class="btn btn-cancel form-card-cancel" data-cancel="${req.id}">⊘ 取消</button>`
@@ -587,10 +604,18 @@ function renderRequestCard(req) {
 
             <div class="content-body" title="内容描述">${escapeHtml(req.content)}</div>
 
-            ${renderVoteDetails(req, "ownPost", platformOwn, "主发布：" + PLATFORMS[platformOwn].name)}
-            ${(req.syncToPlatforms || []).map(p =>
-                renderVoteDetails(req, "sync_" + p, p, "同步到 " + PLATFORMS[p].name)
-            ).join("")}
+            <div class="form-view">
+                <a href="#" class="form-view-link" data-view-toggle="${req.id}">
+                    <i class="fa fa-share"></i> 查看投票详情
+                </a>
+            </div>
+
+            <div class="vote-details-wrapper" data-view-content="${req.id}" style="display:none;">
+                ${renderVoteDetails(req, "ownPost", platformOwn, "主发布：" + PLATFORMS[platformOwn].name)}
+                ${(req.syncToPlatforms || []).map(p =>
+                    renderVoteDetails(req, "sync_" + p, p, "同步到 " + PLATFORMS[p].name)
+                ).join("")}
+            </div>
         </div>
     `;
 
@@ -619,20 +644,20 @@ function renderStepBox({ label, result, stepKey, request, platform }) {
     if (result.status === "approved") {
         boxClass = "submitted";
         checkClass = "checked";
-        checkSym = "✓";
+        checkSym = '<i class="fa fa-check-square-o"></i>';
         detail = `<div class="main-line">投票通过</div>
                   <div class="sub-line approved-text">同意 ${result.approveScore} : 反对 ${result.rejectScore}</div>`;
     } else if (result.status === "rejected") {
         boxClass = "rejected";
-        checkClass = "";
-        checkSym = "✕";
+        checkClass = "rejected-x";
+        checkSym = '<i class="fa fa-times-circle"></i>';
         detail = `<div class="main-line">投票否决</div>
                   <div class="sub-line rejected-text">同意 ${result.approveScore} : 反对 ${result.rejectScore}</div>`;
     } else {
         // pending
         boxClass = "pending-current";
         checkClass = "checked-orange";
-        checkSym = "";
+        checkSym = '<i class="fa fa-square-o"></i>';
         detail = `<div class="main-line">投票进行中</div>
                   <div class="sub-line pending-text">已 ${result.totalVoters} 人参与 · ${formatRemaining(result.deadline)}</div>`;
     }
