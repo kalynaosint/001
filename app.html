@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>内容协调投票系统</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
@@ -659,14 +660,24 @@ function renderVoteDetails(req, stepKey, platform, title) {
     let commentsHtml = "";
     if (comments.length > 0) {
         commentsHtml = `
-            <div class="vote-comments">
-                <div class="vote-comments-title">💬 评论与建议 <span style="color:#888;font-weight:normal">(${comments.length})</span></div>
-                ${comments.map(c => `
-                    <div class="vote-comment vote-comment-${c.choice}">
-                        <span class="vote-comment-tag ${c.choice}">${c.choice === "approve" ? "同意" : "反对"}</span>
-                        <span class="vote-comment-text">${escapeHtml(c.comment)}</span>
-                    </div>
-                `).join("")}
+            <div class="workflow-comments">
+                <h4>评论与建议 <span style="color:#888;font-weight:normal;font-size:11px;">(${comments.length})</span></h4>
+                ${comments.map((c, i) => {
+                    const dateStr = c.timestamp ? formatDate(c.timestamp) : "";
+                    const isApprove = c.choice === "approve";
+                    const statusLabel = isApprove ? "同意" : "反对";
+                    const statusClass = isApprove ? "status-color-Approved" : "status-color-Denied";
+                    const iconClass = isApprove ? "fa-check" : "fa-times";
+                    return `
+                    <div class="comment comment-action">
+                        <div class="comment-number"><i class="fa ${iconClass} ${statusClass}"></i></div>
+                        <span class="comment-text">${escapeHtml(c.comment)}</span>
+                        <div class="comment-by">
+                            <span class="${statusClass}">${statusLabel}</span> · 匿名
+                            <span title="${dateStr}"> on ${dateStr}</span>
+                        </div>
+                    </div>`;
+                }).join("")}
             </div>
         `;
     }
