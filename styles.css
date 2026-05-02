@@ -355,7 +355,7 @@ body {
     background-image: url(images/ui-bg_glass_85_dfeffc_1x400.png);
     background-repeat: repeat-x;
     background-position: 50% 50%;
-    border: 1px solid #c5dbec;
+    border: 1px solid #a6c9e2;
     border-radius: 4px;
     box-shadow: 1px 1px 2px rgba(0,0,0,0.05);
     transition: background-color 0.25s ease, border-color 0.25s ease;
@@ -462,6 +462,18 @@ body {
     opacity: 0;
     transition: max-height 0.35s ease, opacity 0.25s ease 0.05s;
     padding: 0 12px;
+    /* OASIS .ui-widget-content - 极淡灰白 + 底部内阴影PNG */
+    background-color: #fcfdfd;
+    background-image: url(images/ui-bg_inset-hard_100_fcfdfd_1x100.png);
+    background-repeat: repeat-x;
+    background-position: 50% bottom;
+    color: #222;
+}
+
+.form-card.expanded .form-card-body {
+    max-height: 5000px;
+    opacity: 1;
+    padding: 10px 12px 12px 12px;
 }
 
 .form-card.expanded .form-card-body {
