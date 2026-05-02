@@ -365,6 +365,7 @@ body {
 .form-card:not(.expanded) {
     background-color: #d0e5f5;
     border-color: #79b7e7;
+    border-bottom: none;
 }
 
 .form-card-header {
