@@ -426,7 +426,8 @@ function renderRequestList(showAll) {
 
     // 绑定取消按钮
     container.querySelectorAll("[data-cancel]").forEach(btn => {
-        btn.addEventListener("click", function() {
+        btn.addEventListener("click", function(e) {
+            e.stopPropagation();
             if (!confirm("确定要取消此请求吗？")) return;
             const ok = deleteRequest(this.dataset.cancel, currentUser.id);
             if (ok) renderRequestList(showAll);
@@ -435,6 +436,15 @@ function renderRequestList(showAll) {
 
     // 评论气泡点击高亮 - 双向关联(步骤气泡<->评论气泡)
     container.querySelectorAll(".comment-number[data-comment-id]").forEach(el => {
+        el.addEventListener("click", function(e) {
+            e.stopPropagation();
+            const commentId = this.dataset.commentId;
+            highlightComment(commentId, this);
+        });
+    });
+
+    // 点击整条评论也能高亮
+    container.querySelectorAll(".comment[data-comment-id]").forEach(el => {
         el.addEventListener("click", function(e) {
             e.stopPropagation();
             const commentId = this.dataset.commentId;
@@ -586,9 +596,9 @@ function renderRequestCard(req) {
 
     return `
     <div class="${cardClass}">
-        <div class="form-card-header">
+        <div class="form-card-header" data-toggle="${req.id}">
             <div class="form-card-title">
-                <span class="triangle clickable" data-toggle="${req.id}">${triangle}</span><span class="clickable" data-toggle="${req.id}">${escapeHtml(req.title)}</span>
+                <span class="triangle">${triangle}</span><span>${escapeHtml(req.title)}</span>
                 <span class="sub">(${escapeHtml(authorName)} · ${timeText})</span>
             </div>
             <div class="form-card-status">${statusText}</div>
