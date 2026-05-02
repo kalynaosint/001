@@ -767,25 +767,39 @@ body {
     line-height: 1.6;
 }
 
-/* hover: 淡黄色背景 (OASIS 标志性的 hover 反馈) */
+.form-view-link {
+    display: inline-block;
+    padding: 5px 14px;
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    text-decoration: none !important;
+    /* jQuery UI Redmond .ui-state-default */
+    border: 1px solid #c5dbec;
+    background: #dfeffc;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.03) 100%);
+    color: #2e6e9e !important;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
 .form-view-link:hover {
-    background: #FCFED5;
-    background-image: none;
+    border-color: #79b7e7;
+    background: #d0e5f5;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.04) 100%);
+    color: #1d5987 !important;
     text-decoration: none !important;
 }
 
-/* active (按下瞬间): 颜色再深一点 */
 .form-view-link:active {
-    background: #f5f8d0;
+    border-color: #79b7e7;
+    background: #f5f8f9;
+    color: #e17009 !important;
 }
 
 .form-view-link i {
     margin-right: 4px;
-}
-
-/* 投票详情包裹 */
-.vote-details-wrapper {
-    margin-top: 6px;
 }
 
 /* ============================================================
