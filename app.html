@@ -472,6 +472,18 @@ function renderRequestList(showAll) {
 
 // 高亮指定评论 + 对应步骤气泡, 滚动到评论位置
 function highlightComment(commentId, sourceEl) {
+    // 如果点击的是步骤气泡(在投票详情外),需要先展开投票详情
+    const card = sourceEl.closest(".form-card");
+    if (card) {
+        const wrapper = card.querySelector(".vote-details-wrapper");
+        const viewToggle = card.querySelector("[data-view-toggle]");
+        if (wrapper && wrapper.style.display === "none") {
+            wrapper.style.display = "block";
+            if (viewToggle) {
+                viewToggle.innerHTML = '<i class="fa fa-share"></i> 收起投票详情';
+            }
+        }
+    }
     // 找到目标评论 div 和它所有相关的 comment-number 气泡
     const targetComment = document.getElementById(commentId);
     const allBubbles = document.querySelectorAll(`.comment-number[data-comment-id="${commentId}"]`);
