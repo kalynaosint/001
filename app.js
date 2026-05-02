@@ -3,6 +3,7 @@
    ============================================================ */
 
 // ============= Firebase 配置 =============
+
 const firebaseConfig = {
     apiKey: "AIzaSyBPUek82Wsu_WLbgpRwCSlgZncLcC85b30",
     authDomain: "vote-site-7058e.firebaseapp.com",
@@ -81,25 +82,23 @@ function loadRequests() {
 }
 
 function saveRequests(requests) {
-    const updates = {};
-
+    const obj = {};
     requests.forEach(r => {
         const copy = JSON.parse(JSON.stringify(r));
-
         if (copy.steps) {
             Object.keys(copy.steps).forEach(k => {
+                // 把 votes 数组转为对象（用 userId 做 key），避免空数组被吞 + 数组被转成对象的混乱
                 const votesArr = copy.steps[k].votes || [];
                 const votesObj = {};
                 votesArr.forEach(v => { votesObj[v.userId] = v; });
+                // 即使是空对象，也加一个占位字段保证节点存在
                 votesObj.__keep = true;
                 copy.steps[k].votes = votesObj;
             });
         }
-
-        updates["requests/" + copy.id] = copy;
+        obj[r.id] = copy;
     });
-
-    return db.ref().update(updates);
+    requestsRef.set(obj);
 }
 
 function loadSession() {
@@ -345,16 +344,9 @@ function createRequest({ authorId, title, content, authorPlatform, syncToPlatfor
     syncToPlatforms.forEach(p => {
         req.steps["sync_" + p] = { targetPlatform: p, votes: [] };
     });
-    const copy = JSON.parse(JSON.stringify(req));
-
-      Object.keys(copy.steps).forEach(k => {
-          copy.steps[k].votes = { __keep: true };
-      });
-      
-      requestsRef.child(copy.id).set(copy);
-      
-      requests.push(req);
-      return req;
+    requests.push(req);
+    saveRequests(requests);
+    return req;
 }
 
 function deleteRequest(requestId, userId) {
@@ -393,4 +385,16 @@ function escapeHtml(s) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+}
+
+// 把文本里的URL变成可点击链接(先转义,再替换)
+function linkifyText(s) {
+    if (s == null) return "";
+    const escaped = escapeHtml(s);
+    // 匹配 http(s):// 或 www. 开头的链接
+    const urlRegex = /(https?:\/\/[^\s<>"]+|www\.[^\s<>"]+)/g;
+    return escaped.replace(urlRegex, function(url) {
+        const href = url.startsWith("www.") ? "http://" + url : url;
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="content-link">${url}</a>`;
+    });
 }
