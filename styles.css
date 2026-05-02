@@ -914,7 +914,12 @@ body {
     position: relative;
     font-size: 11px;
     line-height: 1.6;
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.comment:hover {
+    background-color: #fdfdd8;
 }
 
 /* 编号气泡 - 浮在评论左边 (评论列表中) */
