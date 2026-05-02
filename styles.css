@@ -375,7 +375,7 @@ body {
     cursor: pointer;
     user-select: none;
     flex-wrap: wrap;
-    padding: 8px 12px;
+    padding: 5px 12px;
     border-bottom: 1px solid #c5dbec;
 }
 
