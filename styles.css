@@ -297,47 +297,89 @@ body {
 /* ============================================================
    按钮 (仿 OASIS .big-blue-button + .LinkButton)
    ============================================================ */
+/* ============================================================
+   按钮 - 统一 jQuery UI Redmond 风格 (.ui-state-default)
+   - .btn          默认蓝玻璃
+   - .btn-primary  深蓝渐变 (主要操作: 提交)
+   - .btn-cancel   灰玻璃 (次要操作: 取消)
+   ============================================================ */
 .btn {
     display: inline-block;
-    padding: 6px 14px;
-    background: linear-gradient(to bottom, #f2f9fe 0%, #d6f0fd 100%);
-    color: #00309C;
-    border: 1px solid #bce9ff;
-    border-radius: 3px;
+    padding: 6px 16px;
+    /* jQuery UI Redmond .ui-state-default */
+    background-color: #dfeffc;
+    background-image: url(images/ui-bg_glass_85_dfeffc_1x400.png);
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
+    color: #2e6e9e !important;
+    border: 1px solid #c5dbec;
+    border-radius: 4px;
     font-size: 12px;
+    font-weight: bold;
     cursor: pointer;
-    text-decoration: none;
+    text-decoration: none !important;
     font-family: Verdana, Arial, sans-serif;
-}
-.btn:hover {
-    background: linear-gradient(to bottom, #fcfed5 0%, #fcfed5 100%);
-    text-decoration: none;
-}
-.btn:active {
-    background: linear-gradient(to bottom, #d6f0fd 0%, #f2f9fe 100%);
+    line-height: 1.4;
+    vertical-align: middle;
+    text-align: center;
 }
 
+.btn:hover {
+    background-color: #d0e5f5;
+    background-image: url(images/ui-bg_glass_75_d0e5f5_1x400.png);
+    border-color: #79b7e7;
+    color: #1d5987 !important;
+    text-decoration: none !important;
+}
+
+.btn:active {
+    background-color: #f5f8f9;
+    background-image: none;
+    border-color: #79b7e7;
+    color: #e17009 !important;
+}
+
+/* 主按钮 - 深蓝色突出 */
 .btn-primary {
-    background: linear-gradient(to bottom, #2ebaed 5%, #378de5 100%);
-    background-color: #2ebaed;
-    border-radius: 6px;
+    padding: 7px 18px;
+    /* OASIS big-blue-button 风格(深蓝渐变)但保留同样的边框/阴影逻辑 */
+    background-color: #378de5;
+    background-image: linear-gradient(to bottom, #5ca5e8 0%, #2e7bd0 100%);
     color: #ffffff !important;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 8px 16px;
-    text-shadow: 0 1px 0 #528ecc;
-    border: none;
+    border: 1px solid #1d5987;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    font-size: 13px;
 }
 .btn-primary:hover {
-    background: linear-gradient(to bottom, #0ea4d8 5%, #1e6ec0 100%);
-    text-decoration: none;
+    background-color: #2e7bd0;
+    background-image: linear-gradient(to bottom, #4a92dc 0%, #1d6ec0 100%);
+    border-color: #0E61B7;
+    color: #ffffff !important;
+}
+.btn-primary:active {
+    background-color: #1d6ec0;
+    background-image: linear-gradient(to bottom, #1d6ec0 0%, #2e7bd0 100%);
+    color: #ffffff !important;
 }
 
+/* 取消按钮 - 灰玻璃 */
 .btn-cancel {
-    background: linear-gradient(to bottom, #f0f0f0 0%, #d8d8d8 100%);
-    color: #555;
-    border: 1px solid #999;
-    border-radius: 3px;
+    background-color: #f1f1f1;
+    background-image: linear-gradient(to bottom, #fafafa 0%, #e0e0e0 100%);
+    color: #555 !important;
+    border: 1px solid #bbb;
+    font-weight: normal;
+}
+.btn-cancel:hover {
+    background-color: #e0e0e0;
+    background-image: linear-gradient(to bottom, #f0f0f0 0%, #d0d0d0 100%);
+    border-color: #999;
+    color: #333 !important;
+}
+.btn-cancel:active {
+    background-image: none;
+    background-color: #e8e8e8;
+    color: #e17009 !important;
 }
 
 .btn-icon {
@@ -736,6 +778,15 @@ body {
    ============================================================ */
 .submit-form-wrapper {
     padding: 14px 18px;
+    /* OASIS .ui-widget-content 灰底 */
+    background-color: #fcfdfd;
+    background-image: url(images/ui-bg_inset-hard_100_fcfdfd_1x100.png);
+    background-repeat: repeat-x;
+    background-position: 50% bottom;
+    border: 1px solid #a6c9e2;
+    border-radius: 4px;
+    margin: 0 5px 8px 5px;
+    color: #222;
 }
 
 .submit-form-wrapper h3 {
@@ -780,47 +831,37 @@ body {
 
 .form-view-link {
     display: inline-block;
-    padding: 2px 10px;
-    /* OASIS 的 button.bg.gif 是从浅蓝到深蓝的渐变 */
-    background: linear-gradient(to bottom, #e8f1fb 0%, #bfd2ed 100%);
-    background-color: #bfd2ed;
-    border: solid 1px #0E61B7;
-    color: #00309C !important;
-    border-radius: 3px;
-    font-size: 12px;
-    text-decoration: none !important;
-    cursor: pointer;
-    line-height: 1.6;
-}
-
-.form-view-link {
-    display: inline-block;
-    padding: 8px 16px;
+    padding: 6px 16px;
     cursor: pointer;
     text-align: center;
     vertical-align: middle;
     text-decoration: none !important;
-    /* jQuery UI Redmond .ui-state-default */
+    /* jQuery UI Redmond .ui-state-default 用真实PNG */
     border: 1px solid #c5dbec;
-    background: #dfeffc;
-    background-image: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.03) 100%);
+    background-color: #dfeffc;
+    background-image: url(images/ui-bg_glass_85_dfeffc_1x400.png);
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
     color: #2e6e9e !important;
     font-weight: bold;
     border-radius: 4px;
     font-size: 12px;
 }
 
+/* hover: 用 hover 玻璃PNG */
 .form-view-link:hover {
     border-color: #79b7e7;
-    background: #d0e5f5;
-    background-image: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.04) 100%);
+    background-color: #d0e5f5;
+    background-image: url(images/ui-bg_glass_75_d0e5f5_1x400.png);
     color: #1d5987 !important;
     text-decoration: none !important;
 }
 
+/* active: 文字变橙(jQuery UI .ui-state-active 的标志性反馈) */
 .form-view-link:active {
     border-color: #79b7e7;
-    background: #f5f8f9;
+    background-color: #f5f8f9;
+    background-image: none;
     color: #e17009 !important;
 }
 
@@ -1130,6 +1171,25 @@ body {
     overflow-y: auto;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* 内容里和评论里的链接 */
+.content-link,
+.content-link:visited,
+.comment-text .content-link {
+    color: #0E61B7 !important;
+    text-decoration: underline !important;
+    word-break: break-all;
+}
+.content-link:hover {
+    color: #00309C !important;
+    text-decoration: underline !important;
+    background: rgba(255, 220, 0, 0.2);
+}
+.content-link::after {
+    content: " ↗";
+    font-size: 0.85em;
+    color: #888;
 }
 
 .platform-tag {
