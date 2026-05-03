@@ -233,6 +233,21 @@ const session = loadSession();
 if (!session) {
     window.location.href = "index.html";
 }
+
+// 游客特殊处理
+let currentUser;
+if (session && session.role === "guest") {
+    currentUser = session;
+} else {
+    currentUser = getMemberById(session.id);
+    if (!currentUser) {
+        clearSession();
+        window.location.href = "index.html";
+    }
+}
+// 游客没有真实member,需要单独处理
+const isCurrentGuest = isGuest(currentUser);
+
 const currentUser = getMemberById(session.id);
 if (!currentUser) {
     clearSession();
