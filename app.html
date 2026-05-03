@@ -178,16 +178,45 @@
             <h3>请求类型</h3>
             <p>系统支持<strong>两种请求</strong>：</p>
             <ul>
-                <li><strong>内容发布请求</strong>（原创）：作者在自己负责的平台发布原创内容，可选择是否同步到其他平台</li>
-                <li><strong>单独同步请求</strong>：组员发起，把<strong>已通过</strong>的某个内容推荐到原本没有同步的平台。例如知乎运营者看到 Bilibili 上发的某个视频很合适，可以发起同步请求把它带到知乎</li>
+                <li><strong>内容发布请求</strong>（原创）：<span style="color:#CC0000;">仅平台运营者可发起</span>。运营者在自己负责的平台发布原创内容，可选择是否同步到其他平台</li>
+                <li><strong>单独同步请求</strong>：<span style="color:#008000;">组长、运营者、组员都可发起</span>。把<strong>已通过</strong>的某个内容推荐到原本没有同步的平台。例如知乎运营者看到 Bilibili 上发的某个视频很合适，可以发起同步请求把它带到知乎；普通组员也可以推荐内容</li>
             </ul>
             <p class="help-text">同步请求只有目标平台对应的步骤需要投票，其他平台的成员不参与。</p>
 
-            <h3>角色与权限</h3>
+            <h3>谁能发起什么</h3>
+            <table style="border-collapse: collapse; margin: 10px 0;">
+                <tr style="background: #dfeffc; font-weight: bold;">
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">角色</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">内容发布请求</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">单独同步请求</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">组长</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #CC0000;">✗</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #008000;">✓</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">平台运营者</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #008000;">✓</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #008000;">✓</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">组员</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #CC0000;">✗</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #008000;">✓</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec;">游客</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #CC0000;">✗</td>
+                    <td style="padding: 6px 12px; border: 1px solid #c5dbec; color: #CC0000;">✗</td>
+                </tr>
+            </table>
+
+            <h3>角色与权限（投票权重）</h3>
             <ul>
                 <li><strong>组长：</strong>所有请求 + 所有步骤都可以投票，权重 <strong>3</strong>（对涉及任何平台的步骤都生效）</li>
                 <li><strong>运营者</strong>（Bilibili / 抖音 / 知乎运营）：所有请求都可投票，但仅在<strong>自己负责的平台对应的步骤</strong>权重为 <strong>3</strong>，其他步骤权重为 <strong>1</strong></li>
-                <li><strong>组员：</strong>所有步骤权重均为 <strong>1</strong>，可以发起原创请求和同步请求</li>
+                <li><strong>组员：</strong>所有步骤权重均为 <strong>1</strong></li>
                 <li><strong>内容作者：</strong>对自己的请求自动同意，权重 <strong>3</strong>，不能投反对票</li>
                 <li><strong>游客：</strong>只能<strong>查看</strong>投票进度和历史，无法投票、不能发起请求、不能评论</li>
             </ul>
@@ -233,19 +262,13 @@ const session = loadSession();
 if (!session) {
     window.location.href = "index.html";
 }
-
-// 游客特殊处理
-let currentUser;
-if (session && session.role === "guest") {
-    currentUser = session;
-} else {
-    currentUser = getMemberById(session.id);
-    if (!currentUser) {
-        clearSession();
-        window.location.href = "index.html";
-    }
+const currentUser = getMemberById(session.id);
+if (!currentUser) {
+    clearSession();
+    window.location.href = "index.html";
 }
-// 游客没有真实member,需要单独处理
+
+// 游客没有真实member,需要单独处理(getMemberById对guest会返回undefined)
 const isCurrentGuest = isGuest(currentUser);
 
 // ============================================================
@@ -342,20 +365,28 @@ function renderSubmitForm() {
     const ownInfo = document.getElementById("ownPlatformInfo");
     const syncGroup = document.getElementById("syncPlatformsGroup");
 
+    // 根据角色限制可选请求类型
+    // 运营者: 两种都能选; 组长/组员: 只能发起单独同步请求
+    const requestTypeSelect = document.getElementById("requestType");
+    const isOperatorUser = !!userPlatform;
+
+    if (isOperatorUser) {
+        requestTypeSelect.innerHTML = `
+            <option value="original">内容发布请求 — 我要在我负责的平台发布原创内容</option>
+            <option value="sync">单独同步请求 — 推荐已发布的内容同步到其他平台</option>
+        `;
+        requestTypeSelect.disabled = false;
+    } else {
+        // 组长 / 组员: 只能发起同步请求 (内容发布只能由运营者发起)
+        requestTypeSelect.innerHTML = `
+            <option value="sync">单独同步请求 — 推荐已发布的内容同步到其他平台</option>
+        `;
+        requestTypeSelect.disabled = true;  // 只有一个选项,禁用下拉
+    }
+
     if (userPlatform) {
         // 运营者：默认发布到自己负责的平台
         ownInfo.innerHTML = `<span class="platform-tag ${PLATFORMS[userPlatform].className}">${PLATFORMS[userPlatform].name}</span> （你负责的平台，将作为主发布平台）`;
-    } else {
-        // 普通组员：需要选一个主发布平台
-        ownInfo.innerHTML = `
-            <select id="authorPlatformSelect">
-                <option value="">-- 选择主发布平台 --</option>
-                <option value="bilibili">Bilibili</option>
-                <option value="douyin">抖音</option>
-                <option value="zhihu">知乎</option>
-            </select>
-            <div class="help-text">作为非运营者，你需要选择内容首先发布到哪个平台。</div>
-        `;
     }
 
     // 同步到其他平台的复选框
@@ -389,9 +420,10 @@ function renderSubmitForm() {
         });
     }
 
-    // 默认选中"原创发布请求"并显示对应字段
-    document.getElementById("requestType").value = "original";
-    toggleSubmitFormType("original");
+    // 默认根据角色选中正确类型
+    const defaultType = isOperatorUser ? "original" : "sync";
+    requestTypeSelect.value = defaultType;
+    toggleSubmitFormType(defaultType);
 }
 
 // 切换表单类型显示
@@ -460,12 +492,8 @@ document.getElementById("newRequestForm").addEventListener("submit", function(e)
 
         let authorPlatform = getOperatorPlatform(currentUser);
         if (!authorPlatform) {
-            const sel = document.getElementById("authorPlatformSelect");
-            authorPlatform = sel ? sel.value : "";
-            if (!authorPlatform) {
-                alert("请选择主发布平台");
-                return;
-            }
+            alert("只有平台运营者才能发起内容发布请求。组长和组员请使用「单独同步请求」推荐内容。");
+            return;
         }
 
         const syncTo = Array.from(document.querySelectorAll('input[name="syncPlatform"]:checked'))
