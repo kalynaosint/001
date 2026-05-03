@@ -94,30 +94,67 @@
                 <h3>请求类型</h3>
                 <div class="form-row">
                     <select id="requestType" required>
-                        <option value="content_publish">内容发布请求</option>
+                        <option value="original">内容发布请求 — 我要在我负责的平台发布原创内容</option>
+                        <option value="sync">单独同步请求 — 推荐已发布的内容同步到其他平台</option>
                     </select>
-                    <div class="help-text">目前仅支持"内容发布请求"，未来将扩展更多类型。</div>
+                    <div class="help-text" id="requestTypeHint"></div>
                 </div>
 
-                <h3>1. 内容标题</h3>
-                <div class="form-row">
-                    <input type="text" id="reqTitle" required placeholder="发送内容的主要标题">
+                <!-- ==================== 原创发布请求字段 ==================== -->
+                <div id="form-original">
+                    <h3>1. 内容标题</h3>
+                    <div class="form-row">
+                        <input type="text" id="reqTitle" placeholder="发送内容的主要标题">
+                    </div>
+
+                    <h3>2. 内容链接</h3>
+                    <div class="form-row">
+                        <textarea id="reqContent" placeholder="先在负责的平台发布内容，然后将链接粘贴于此"></textarea>
+                        <div class="help-text">让其他成员了解你的内容，方便他们做判断。</div>
+                    </div>
+
+                    <h3>3. 您的内容默认将在自己负责的平台发布</h3>
+                    <div class="form-row" id="ownPlatformInfo"></div>
+
+                    <h3>4. 是否同步到其他平台？</h3>
+                    <div class="form-row checkbox-group" id="syncPlatformsGroup">
+                        <!-- JS 注入 -->
+                    </div>
+                    <div class="help-text">勾选你希望同步发布到的其他平台（运营者及组员将投票决定是否同意）。</div>
                 </div>
 
-                <h3>2. 内容链接</h3>
-                <div class="form-row">
-                    <textarea id="reqContent" required placeholder="先在负责的平台发布内容，然后将链接粘贴于此"></textarea>
-                    <div class="help-text">让其他成员了解你的内容，方便他们做判断。</div>
-                </div>
+                <!-- ==================== 同步请求字段 ==================== -->
+                <div id="form-sync" style="display:none;">
+                    <h3>1. 选择已通过的内容</h3>
+                    <div class="form-row">
+                        <select id="syncSourceRequest">
+                            <option value="">-- 请选择 --</option>
+                        </select>
+                        <div class="help-text">只能选择已通过投票的内容。如果列表为空，说明还没有通过的内容可供同步。</div>
+                    </div>
 
-                <h3>3. 您的内容默认将在自己负责的平台发布</h3>
-                <div class="form-row" id="ownPlatformInfo"></div>
+                    <h3>2. 原视频链接</h3>
+                    <div class="form-row">
+                        <input type="text" id="syncSourceUrl" placeholder="例如 https://www.bilibili.com/video/BV...">
+                        <div class="help-text">投票人可以点击此链接查看原视频内容。</div>
+                    </div>
 
-                <h3>4. 是否同步到其他平台？</h3>
-                <div class="form-row checkbox-group" id="syncPlatformsGroup">
-                    <!-- JS 注入 -->
+                    <h3>3. 目标同步平台</h3>
+                    <div class="form-row">
+                        <select id="syncTargetPlatform">
+                            <option value="">-- 请选择 --</option>
+                            <option value="bilibili">Bilibili</option>
+                            <option value="douyin">抖音</option>
+                            <option value="zhihu">知乎</option>
+                        </select>
+                        <div class="help-text">该平台的运营者和小组成员将投票决定是否同步。</div>
+                    </div>
+
+                    <h3>4. 推荐理由（可选）</h3>
+                    <div class="form-row">
+                        <textarea id="syncReason" placeholder="说明为什么觉得这个内容值得在该平台发布..."></textarea>
+                    </div>
                 </div>
-                <div class="help-text">勾选你希望同步发布到的其他平台（运营者及组员将投票决定是否同意）。</div>
 
                 <div class="form-row" style="margin-top: 18px;">
                     <button type="submit" class="btn btn-primary">
@@ -134,43 +171,52 @@
         <div class="page-title-bar">
             <div>
                 <span class="page-title">投票规则说明</span>
-                <span class="page-title-sub">- 加权投票机制详解</span>
+                <span class="page-title-sub">- 协调机制与角色权限</span>
             </div>
         </div>
         <div class="submit-form-wrapper">
-            <h3>基本机制</h3>
-            <p>系统采用<strong>「反对票」机制</strong>：默认通过，除非反对加权分数过高。作者本人对自己内容自动同意，其他人投票主要起到"阻止"作用。</p>
-
-            <h3>权重分配</h3>
+            <h3>请求类型</h3>
+            <p>系统支持<strong>两种请求</strong>：</p>
             <ul>
-                <li><strong>内容作者：</strong>权重 3，自动同意（不可投反对票）</li>
-                <li><strong>组长：</strong>权重 3（对所有请求和所有步骤生效）</li>
-                <li><strong>所涉平台的运营者：</strong>权重 3（仅对涉及自己平台的步骤生效）</li>
-                <li><strong>其他人：</strong>权重 1</li>
+                <li><strong>内容发布请求</strong>（原创）：作者在自己负责的平台发布原创内容，可选择是否同步到其他平台</li>
+                <li><strong>单独同步请求</strong>：组员发起，把<strong>已通过</strong>的某个内容推荐到原本没有同步的平台。例如知乎运营者看到 Bilibili 上发的某个视频很合适，可以发起同步请求把它带到知乎</li>
             </ul>
+            <p class="help-text">同步请求只有目标平台对应的步骤需要投票，其他平台的成员不参与。</p>
+
+            <h3>角色与权限</h3>
+            <ul>
+                <li><strong>组长：</strong>所有请求 + 所有步骤都可以投票，权重 <strong>3</strong>（对涉及任何平台的步骤都生效）</li>
+                <li><strong>运营者</strong>（Bilibili / 抖音 / 知乎运营）：所有请求都可投票，但仅在<strong>自己负责的平台对应的步骤</strong>权重为 <strong>3</strong>，其他步骤权重为 <strong>1</strong></li>
+                <li><strong>组员：</strong>所有步骤权重均为 <strong>1</strong>，可以发起原创请求和同步请求</li>
+                <li><strong>内容作者：</strong>对自己的请求自动同意，权重 <strong>3</strong>，不能投反对票</li>
+                <li><strong>游客：</strong>只能<strong>查看</strong>投票进度和历史，无法投票、不能发起请求、不能评论</li>
+            </ul>
+
+            <h3>反对必填评论</h3>
+            <p>投反对票时<strong>必须填写理由</strong>，作者会在请求页面看到所有匿名评论以便修改内容。<br>
+            投同意票时可选填评论（建议或意见）。所有评论<strong>匿名</strong>，作者及其他成员都看不到具体评论人。</p>
 
             <h3>通过条件（截止后判定）</h3>
             <ol>
                 <li><strong>反对加权占比 &lt; 40%</strong> → 通过</li>
                 <li><strong>反对加权占比 ≥ 40%</strong> → 否决</li>
-                <li><strong>硬性下限：</strong>反对加权总分 ≥ 6 → 立即否决（无需等截止）<br>
+                <li><strong>硬性下限：</strong>反对加权总分 ≥ <strong>6</strong> → 立即否决（无需等截止）<br>
                     <span class="help-text">举例：组长 + 1 名相关运营者反对（3+3=6），或 2 名相关运营者反对（3+3=6），或 1 名高权重者 + 3 名普通成员反对（3+1+1+1=6）</span>
                 </li>
             </ol>
 
             <h3>截止时间</h3>
-            <p>每个步骤的截止时间不同：</p>
             <ul>
                 <li><strong>主发布步骤</strong>（发到作者负责的平台）：提交后 <strong>1 小时</strong>截止</li>
-                <li><strong>同步步骤</strong>（同步到其他平台）：提交后 <strong>3 小时</strong>截止</li>
+                <li><strong>同步步骤</strong>（同步到其他平台，或单独同步请求）：提交后 <strong>3 小时</strong>截止</li>
             </ul>
             <p>截止前结论仍可改变，截止后系统自动给出最终结论。</p>
 
             <h3>匿名投票</h3>
-            <p>所有投票都是<strong>匿名</strong>的。系统只显示参与人数和加权结果，不公开具体投票人。作者本人和其他成员都看不到谁投了什么票。</p>
+            <p>所有投票<strong>匿名</strong>。系统只显示加权结果和参与人数，不公开具体投票人。作者本人和其他成员都看不到谁投了什么票或留了什么评论。</p>
 
             <h3>关于本系统</h3>
-            <p class="help-text">本系统使用 localStorage 存储数据，数据仅保存在你自己的浏览器中。要让小组成员真正协作投票，需要切换到云端存储（详见 README.md）。</p>
+            <p class="help-text">本系统数据存储在 Firebase 实时数据库，所有成员看到的数据实时同步。如需调整成员名单或权限，由管理员维护 <code>config.js</code>。</p>
         </div>
     </div>
         </div><!-- /.section-content-wrapper -->
@@ -193,6 +239,9 @@ if (!currentUser) {
     window.location.href = "index.html";
 }
 
+// 游客没有真实member,需要单独处理(getMemberById对guest会返回undefined)
+const isCurrentGuest = isGuest(currentUser);
+
 // ============================================================
 // 用户信息条渲染
 // ============================================================
@@ -200,6 +249,26 @@ document.getElementById("userName").textContent = currentUser.name;
 const roleTag = document.getElementById("userRoleTag");
 roleTag.textContent = getRoleLabel(currentUser);
 roleTag.classList.add(getRoleClassName(currentUser));
+
+// 游客模式: 隐藏"提交新请求"相关入口
+if (isCurrentGuest) {
+    // 顶部tab隐藏"提交新请求"
+    document.querySelectorAll(".top-nav li[data-tab='submit']").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".top-nav li[data-tab='myforms']").forEach(el => el.style.display = "none");
+    // 子导航隐藏
+    document.querySelectorAll(".toptabs-subtab[data-subtab='submit']").forEach(el => {
+        el.style.display = "none";
+        const sep = el.previousElementSibling;
+        if (sep && sep.classList.contains("toptabs-subtab-seperator")) sep.style.display = "none";
+    });
+    document.querySelectorAll(".toptabs-subtab[data-subtab='myforms']").forEach(el => {
+        el.style.display = "none";
+        const sep = el.nextElementSibling;
+        if (sep && sep.classList.contains("toptabs-subtab-seperator")) sep.style.display = "none";
+    });
+    // 页面标题区的"提交新请求"按钮
+    document.querySelectorAll('.page-title-bar .btn-primary[onclick*="submit"]').forEach(el => el.style.display = "none");
+}
 
 document.getElementById("logoutBtn").addEventListener("click", function(e) {
     e.preventDefault();
@@ -273,7 +342,7 @@ function renderSubmitForm() {
     } else {
         // 普通组员：需要选一个主发布平台
         ownInfo.innerHTML = `
-            <select id="authorPlatformSelect" required>
+            <select id="authorPlatformSelect">
                 <option value="">-- 选择主发布平台 --</option>
                 <option value="bilibili">Bilibili</option>
                 <option value="douyin">抖音</option>
@@ -287,7 +356,7 @@ function renderSubmitForm() {
     syncGroup.innerHTML = "";
     Object.keys(PLATFORMS).forEach(p => {
         const skipPlatform = userPlatform === p;
-        if (skipPlatform) return; // 自己负责的平台不显示在这里
+        if (skipPlatform) return;
         const label = document.createElement("label");
         label.innerHTML = `
             <input type="checkbox" name="syncPlatform" value="${p}">
@@ -295,40 +364,118 @@ function renderSubmitForm() {
         `;
         syncGroup.appendChild(label);
     });
+
+    // 同步请求 - 填充已通过的内容下拉
+    const sourceSelect = document.getElementById("syncSourceRequest");
+    sourceSelect.innerHTML = '<option value="">-- 请选择 --</option>';
+    const approved = getApprovedOriginalRequests();
+    if (approved.length === 0) {
+        sourceSelect.innerHTML += '<option value="" disabled>暂无已通过的内容</option>';
+    } else {
+        approved.forEach(r => {
+            const author = getMemberById(r.authorId);
+            const authorName = author ? author.name : r.authorId;
+            const platformName = PLATFORMS[r.authorPlatform] ? PLATFORMS[r.authorPlatform].name : r.authorPlatform;
+            const opt = document.createElement("option");
+            opt.value = r.id;
+            opt.textContent = `${r.title}（${platformName} · ${authorName}）`;
+            sourceSelect.appendChild(opt);
+        });
+    }
+
+    // 默认选中"原创发布请求"并显示对应字段
+    document.getElementById("requestType").value = "original";
+    toggleSubmitFormType("original");
 }
+
+// 切换表单类型显示
+function toggleSubmitFormType(type) {
+    document.getElementById("form-original").style.display = (type === "original") ? "block" : "none";
+    document.getElementById("form-sync").style.display = (type === "sync") ? "block" : "none";
+    const hint = document.getElementById("requestTypeHint");
+    if (type === "original") {
+        hint.textContent = "用于在你负责的平台发布原创内容,可以选择是否同步到其他平台。";
+    } else {
+        hint.textContent = "用于推荐已通过的内容到其他平台(只有该目标平台的运营者和成员投票)。";
+    }
+}
+
+// 类型切换事件
+document.getElementById("requestType").addEventListener("change", function() {
+    toggleSubmitFormType(this.value);
+});
 
 document.getElementById("newRequestForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    const title = document.getElementById("reqTitle").value.trim();
-    const content = document.getElementById("reqContent").value.trim();
-    if (!title || !content) {
-        alert("请填写完整");
-        return;
-    }
+    const type = document.getElementById("requestType").value;
 
-    let authorPlatform = getOperatorPlatform(currentUser);
-    if (!authorPlatform) {
-        const sel = document.getElementById("authorPlatformSelect");
-        authorPlatform = sel ? sel.value : "";
-        if (!authorPlatform) {
-            alert("请选择主发布平台");
+    if (type === "sync") {
+        // ----- 同步请求 -----
+        const sourceRequestId = document.getElementById("syncSourceRequest").value;
+        const sourceUrl = document.getElementById("syncSourceUrl").value.trim();
+        const targetPlatform = document.getElementById("syncTargetPlatform").value;
+        const reason = document.getElementById("syncReason").value.trim();
+
+        if (!sourceRequestId) { alert("请选择已通过的内容"); return; }
+        if (!sourceUrl) { alert("请填写原视频链接"); return; }
+        if (!targetPlatform) { alert("请选择目标同步平台"); return; }
+
+        // 取原请求标题
+        const sourceReq = loadRequests().find(r => r.id === sourceRequestId);
+        if (!sourceReq) { alert("原请求已不存在"); return; }
+
+        // 不能同步到原本就要发布的平台
+        if (sourceReq.authorPlatform === targetPlatform) {
+            alert("此内容已经是该平台的发布内容,无需同步"); return;
+        }
+        // 不能同步到原请求里已经申请过的平台
+        if (sourceReq.syncToPlatforms && sourceReq.syncToPlatforms.includes(targetPlatform)) {
+            alert("此内容已申请过同步到该平台,无需重复同步"); return;
+        }
+
+        createRequest({
+            type: "sync",
+            authorId: currentUser.id,
+            title: sourceReq.title,           // 用原标题
+            content: reason || "(未填写推荐理由)",
+            sourceRequestId,
+            sourceUrl,
+            targetPlatform,
+        });
+    } else {
+        // ----- 原创发布请求 -----
+        const title = document.getElementById("reqTitle").value.trim();
+        const content = document.getElementById("reqContent").value.trim();
+        if (!title || !content) {
+            alert("请填写完整");
             return;
         }
+
+        let authorPlatform = getOperatorPlatform(currentUser);
+        if (!authorPlatform) {
+            const sel = document.getElementById("authorPlatformSelect");
+            authorPlatform = sel ? sel.value : "";
+            if (!authorPlatform) {
+                alert("请选择主发布平台");
+                return;
+            }
+        }
+
+        const syncTo = Array.from(document.querySelectorAll('input[name="syncPlatform"]:checked'))
+            .map(c => c.value)
+            .filter(p => p !== authorPlatform);
+
+        createRequest({
+            type: "original",
+            authorId: currentUser.id,
+            title,
+            content,
+            authorPlatform,
+            syncToPlatforms: syncTo,
+        });
     }
 
-    const syncTo = Array.from(document.querySelectorAll('input[name="syncPlatform"]:checked'))
-        .map(c => c.value)
-        .filter(p => p !== authorPlatform); // 排除主平台本身
-
-    createRequest({
-        authorId: currentUser.id,
-        title,
-        content,
-        authorPlatform,
-        syncToPlatforms: syncTo,
-    });
-    
     this.reset();
     switchView("myforms");
     renderRequestList(false);
@@ -513,13 +660,18 @@ function highlightComment(commentId, sourceEl) {
 
 function getNextDeadline(req) {
     const now = Date.now();
+    // 同步请求只有 sync 步骤(3小时)
+    if (req.type === "sync") {
+        const deadline = req.submittedAt + 3 * 60 * 60 * 1000;
+        return now < deadline ? deadline : null;
+    }
+    // 原创请求
     const ownDeadline = req.submittedAt + 1 * 60 * 60 * 1000;
     const syncDeadline = req.submittedAt + 3 * 60 * 60 * 1000;
     const hasSyncs = (req.syncToPlatforms || []).length > 0;
-    // 返回尚未截止中最近的；若都已截止返回最大值表示全部结束
     if (now < ownDeadline) return ownDeadline;
     if (hasSyncs && now < syncDeadline) return syncDeadline;
-    return null; // 全部已截止
+    return null;
 }
 
 // 折叠状态：requestId -> bool（true=折叠）
@@ -555,19 +707,15 @@ function renderRequestCard(req) {
     const nextDeadline = getNextDeadline(req);
     const timeText = nextDeadline ? formatRemaining(nextDeadline) : "投票已结束";
     const collapsed = isCollapsed(req.id);
-    // 三角形用 fa-caret-right,展开时通过CSS旋转90度变成 ▼
     const triangle = '<i class="fa fa-caret-right"></i>';
 
-    const ownResult = computeVoteResult(req, "ownPost");
-    const platformOwn = req.authorPlatform;
-    const ownStepBox = renderStepBox({
-        label: `主发布：${PLATFORMS[platformOwn].name}`,
-        result: ownResult,
-        stepKey: "ownPost",
-        request: req,
-        platform: platformOwn,
-        isFirst: false,
-    });
+    const isSyncRequest = req.type === "sync";
+
+    // ========== 标题前缀 ==========
+    let titlePrefix = "";
+    if (isSyncRequest) {
+        titlePrefix = `<span class="request-type-tag type-sync">同步请求</span> `;
+    }
 
     const submitBox = `
         <div class="flow-step">
@@ -576,45 +724,104 @@ function renderRequestCard(req) {
                 <span class="flow-checkbox checked"><i class="fa fa-check-square-o"></i></span>
                 <div class="flow-step-detail">
                     <div class="main-line">已于 ${formatDate(req.submittedAt)} 提交</div>
-                    <div class="sub-line">作者：${escapeHtml(authorName)}</div>
+                    <div class="sub-line">${isSyncRequest ? "推荐人" : "作者"}：${escapeHtml(authorName)}</div>
                 </div>
             </div>
         </div>
     `;
 
-    const syncBoxes = (req.syncToPlatforms || []).map(p => {
-        const stepKey = "sync_" + p;
+    const arrows = '<div class="flow-arrow"><i class="fa fa-arrow-right"></i></div>';
+
+    let flowHtml = "";
+    let voteDetailsHtml = "";
+
+    if (isSyncRequest) {
+        // ========== 同步请求: 只有一个 sync_xxx 步骤 ==========
+        const stepKey = "sync_" + req.targetPlatform;
         const result = computeVoteResult(req, stepKey);
-        return renderStepBox({
-            label: `同步到 ${PLATFORMS[p].name}`,
+        const platformName = PLATFORMS[req.targetPlatform].name;
+        const targetBox = renderStepBox({
+            label: `同步到 ${platformName}`,
             result,
             stepKey,
             request: req,
-            platform: p,
-            isFirst: false,
+            platform: req.targetPlatform,
         });
-    }).join('<div class="flow-arrow"><i class="fa fa-arrow-right"></i></div>');
 
-    const arrows = '<div class="flow-arrow"><i class="fa fa-arrow-right"></i></div>';
+        flowHtml = `
+            <div class="flow-row">
+                ${submitBox}
+                ${arrows}
+                ${targetBox}
+            </div>
+        `;
+        voteDetailsHtml = renderVoteDetails(req, stepKey, req.targetPlatform, "同步到 " + platformName);
+    } else {
+        // ========== 原创发布请求: ownPost + sync_xxx... ==========
+        const ownResult = computeVoteResult(req, "ownPost");
+        const platformOwn = req.authorPlatform;
+        const ownStepBox = renderStepBox({
+            label: `主发布：${PLATFORMS[platformOwn].name}`,
+            result: ownResult,
+            stepKey: "ownPost",
+            request: req,
+            platform: platformOwn,
+        });
 
-    const cancelBtn = (req.authorId === currentUser.id && overallStatus === "in-progress")
+        const syncBoxes = (req.syncToPlatforms || []).map(p => {
+            const stepKey = "sync_" + p;
+            const result = computeVoteResult(req, stepKey);
+            return renderStepBox({
+                label: `同步到 ${PLATFORMS[p].name}`,
+                result,
+                stepKey,
+                request: req,
+                platform: p,
+            });
+        }).join(arrows);
+
+        flowHtml = `
+            <div class="flow-row">
+                ${submitBox}
+                ${arrows}
+                ${ownStepBox}
+                ${(req.syncToPlatforms || []).length > 0 ? arrows + syncBoxes : ''}
+            </div>
+        `;
+
+        voteDetailsHtml = renderVoteDetails(req, "ownPost", platformOwn, "主发布：" + PLATFORMS[platformOwn].name)
+                       + (req.syncToPlatforms || []).map(p =>
+                            renderVoteDetails(req, "sync_" + p, p, "同步到 " + PLATFORMS[p].name)
+                         ).join("");
+    }
+
+    // ========== 内容区 ==========
+    let contentHtml = "";
+    if (isSyncRequest) {
+        // 同步请求: 显示原视频链接 + 推荐理由
+        const sourceLink = req.sourceUrl
+            ? `<div class="sync-source-link">📺 原视频：<a href="${escapeHtml(req.sourceUrl)}" target="_blank" rel="noopener noreferrer" class="content-link">${escapeHtml(req.sourceUrl)}</a></div>`
+            : "";
+        const reasonHtml = req.content
+            ? `<div class="content-body" title="推荐理由"><strong>推荐理由：</strong>${linkifyText(req.content)}</div>`
+            : "";
+        contentHtml = sourceLink + reasonHtml;
+    } else {
+        contentHtml = `<div class="content-body" title="内容描述">${linkifyText(req.content)}</div>`;
+    }
+
+    // 取消按钮 (作者本人 + 进行中) - 游客也不能操作
+    const cancelBtn = (req.authorId === currentUser.id && overallStatus === "in-progress" && !isGuest(currentUser))
         ? `<button class="btn btn-cancel form-card-cancel" data-cancel="${req.id}">⊘ 取消</button>`
         : "";
     let cardClass = "form-card";
     if (cancelBtn) cardClass += " has-cancel";
     if (!collapsed) cardClass += " expanded";
 
-    // body 始终渲染,通过CSS的 .form-card.expanded .form-card-body 控制显隐
     const bodyHtml = `
         <div class="form-card-body">
-            <div class="flow-row">
-                ${submitBox}
-                ${arrows}
-                ${ownStepBox}
-                ${req.syncToPlatforms.length > 0 ? arrows + syncBoxes : ''}
-            </div>
-
-            <div class="content-body" title="内容描述">${linkifyText(req.content)}</div>
+            ${flowHtml}
+            ${contentHtml}
 
             <div class="form-view">
                 <a href="#" class="form-view-link" data-view-toggle="${req.id}">
@@ -623,10 +830,7 @@ function renderRequestCard(req) {
             </div>
 
             <div class="vote-details-wrapper" data-view-content="${req.id}" style="display:none;">
-                ${renderVoteDetails(req, "ownPost", platformOwn, "主发布：" + PLATFORMS[platformOwn].name)}
-                ${(req.syncToPlatforms || []).map(p =>
-                    renderVoteDetails(req, "sync_" + p, p, "同步到 " + PLATFORMS[p].name)
-                ).join("")}
+                ${voteDetailsHtml}
             </div>
         </div>
     `;
@@ -635,7 +839,7 @@ function renderRequestCard(req) {
     <div class="${cardClass}">
         <div class="form-card-header" data-toggle="${req.id}">
             <div class="form-card-title">
-                <span class="triangle">${triangle}</span><span>${escapeHtml(req.title)}</span>
+                <span class="triangle">${triangle}</span>${titlePrefix}<span>${escapeHtml(req.title)}</span>
                 <span class="sub">(${escapeHtml(authorName)} · ${timeText})</span>
             </div>
             <div class="form-card-status">${statusText}</div>
@@ -723,7 +927,9 @@ function renderVoteDetails(req, stepKey, platform, title) {
     const involvedOpRole = PLATFORMS[platform].operatorRole;
 
     let actionsHtml = "";
-    if (isAuthor) {
+    if (isGuest(currentUser)) {
+        actionsHtml = `<span style="color:#666;">👁 游客模式只能查看，无法投票</span>`;
+    } else if (isAuthor) {
         actionsHtml = `<span class="voted-tag approve">作者本人 · 自动同意 (权重 ${WEIGHT_AUTHOR})</span>`;
     } else if (expired) {
         actionsHtml = `<span style="color:#666;">投票已截止</span>`;
@@ -789,7 +995,7 @@ function renderVoteDetails(req, stepKey, platform, title) {
     }
 
     // 评论输入框 (默认隐藏,点击投票按钮后展开)
-    const commentBoxHtml = (!isAuthor && !expired) ? `
+    const commentBoxHtml = (!isAuthor && !expired && !isGuest(currentUser)) ? `
         <div class="vote-comment-box" style="display:none;">
             <div class="vote-comment-hint"></div>
             <textarea class="vote-comment-textarea" rows="3" maxlength="500"></textarea>
@@ -838,8 +1044,8 @@ _onUpdate = function() {
     }
 };
 
-// 初始化
-switchView("myforms");
+// 初始化 - 游客直接看全部请求
+switchView(isCurrentGuest ? "all" : "myforms");
 </script>
 
 </body>
