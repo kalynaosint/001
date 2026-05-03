@@ -248,15 +248,6 @@ if (session && session.role === "guest") {
 // 游客没有真实member,需要单独处理
 const isCurrentGuest = isGuest(currentUser);
 
-const currentUser = getMemberById(session.id);
-if (!currentUser) {
-    clearSession();
-    window.location.href = "index.html";
-}
-
-// 游客没有真实member,需要单独处理(getMemberById对guest会返回undefined)
-const isCurrentGuest = isGuest(currentUser);
-
 // ============================================================
 // 用户信息条渲染
 // ============================================================
