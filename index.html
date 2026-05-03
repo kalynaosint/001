@@ -59,12 +59,17 @@
                 <button type="submit" class="btn btn-primary">
                     <span class="btn-icon">▶</span>登录
                 </button>
+                <button type="button" id="guestLoginBtn" class="btn">
+                    <span class="btn-icon">👁</span>游客查看
+                </button>
             </div>
+
         </form>
 
         <div class="login-hint">
             提示：成员名单与密码由管理员在 <code>config.js</code> 中维护。<br>
-            若遗忘密码请联系管理员。
+            若遗忘密码请联系管理员。<br>
+            <strong>游客模式</strong>：只能查看投票进度和历史，无法参与投票或发起请求。
         </div>
     </div>
 </div>
@@ -110,6 +115,12 @@
         }
         // 登录成功
         saveSession({ id: member.id, name: member.name, role: member.role });
+        window.location.href = "app.html";
+    });
+
+    // 游客登录
+    document.getElementById("guestLoginBtn").addEventListener("click", function() {
+        saveSession({ id: "guest", name: "游客", role: "guest" });
         window.location.href = "app.html";
     });
 </script>
