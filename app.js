@@ -133,6 +133,10 @@ function isLeader(user) {
     return user && user.role === "leader";
 }
 
+function isGuest(user) {
+    return user && user.role === "guest";
+}
+
 function getOperatorPlatform(user) {
     if (!user) return null;
     if (user.role === "operator_bilibili") return "bilibili";
@@ -143,6 +147,7 @@ function getOperatorPlatform(user) {
 
 function getRoleLabel(user) {
     if (!user) return "";
+    if (isGuest(user)) return "游客";
     if (isLeader(user)) return "组长";
     const p = getOperatorPlatform(user);
     if (p) return PLATFORMS[p].name + " 运营者";
@@ -151,6 +156,7 @@ function getRoleLabel(user) {
 
 function getRoleClassName(user) {
     if (!user) return "role-member";
+    if (isGuest(user)) return "role-guest";
     if (isLeader(user)) return "role-leader";
     if (isOperator(user)) return "role-operator";
     return "role-member";
@@ -238,14 +244,21 @@ function computeVoteResult(request, stepKey) {
  *   - 否则按各 step 综合显示 in-progress / approved / rejected
  */
 function computeRequestStatus(request) {
+    // 同步请求: 只有一个 sync_xxx 步骤
+    if (request.type === "sync") {
+        const stepKey = "sync_" + request.targetPlatform;
+        const result = computeVoteResult(request, stepKey);
+        if (!result) return "in-progress";
+        return result.status === "pending" ? "in-progress" : result.status;
+    }
+
+    // 原创发布请求 (默认)
     const ownResult = computeVoteResult(request, "ownPost");
     if (!ownResult) return "in-progress";
 
     const syncSteps = Object.keys(request.steps).filter(k => k.startsWith("sync_"));
     const syncResults = syncSteps.map(k => computeVoteResult(request, k));
 
-    // 任一被否决 → 整体显示 in-progress（仍可继续讨论），但会把对应步骤标红
-    // 全部 approved → approved
     const allApproved =
         ownResult.status === "approved" &&
         syncResults.every(r => r.status === "approved");
@@ -257,7 +270,6 @@ function computeRequestStatus(request) {
         syncResults.every(r => r.status !== "pending");
 
     if (allDecided) {
-        // 至少有一个被 reject
         const anyApproved = ownResult.status === "approved" ||
             syncResults.some(r => r.status === "approved");
         return anyApproved ? "partial" : "rejected";
@@ -270,6 +282,11 @@ function computeRequestStatus(request) {
 // 投票操作
 // ============================================================
 function castVote(requestId, stepKey, userId, choice, comment) {
+    // 游客不能投票
+    if (userId === "guest") {
+        return { ok: false, msg: "游客模式无法投票" };
+    }
+
     const requests = loadRequests();
     const req = requests.find(r => r.id === requestId);
     if (!req) return { ok: false, msg: "请求不存在" };
@@ -325,20 +342,46 @@ function castVote(requestId, stepKey, userId, choice, comment) {
 }
 
 // ============================================================
-// 创建新请求
+// 创建新请求 - 类型 'original' 是原创发布;'sync' 是同步已有内容
 // ============================================================
-function createRequest({ authorId, title, content, authorPlatform, syncToPlatforms }) {
+function createRequest({ authorId, title, content, authorPlatform, syncToPlatforms,
+                        type, sourceRequestId, sourceUrl, targetPlatform }) {
     const requests = loadRequests();
+    type = type || "original";
+
+    if (type === "sync") {
+        // 单独的同步请求 (推荐别人的内容到指定平台)
+        const req = {
+            id: "req_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6),
+            type: "sync",
+            authorId,            // 发起人 (推荐者)
+            title,               // 视频标题
+            content,             // 推荐理由(可选)
+            sourceRequestId: sourceRequestId || null,  // 引用原始请求(必填)
+            sourceUrl: sourceUrl || "",                // 原视频链接(必填)
+            targetPlatform,      // 目标同步平台
+            submittedAt: Date.now(),
+            steps: {
+                ["sync_" + targetPlatform]: { targetPlatform: targetPlatform, votes: [] },
+            },
+        };
+        requests.push(req);
+        saveRequests(requests);
+        return req;
+    }
+
+    // 原有的发布请求 (作者发布到自己平台 + 可选同步到其他平台)
     const req = {
         id: "req_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6),
+        type: "original",
         authorId,
         title,
         content,
-        authorPlatform,        // 作者负责的平台
-        syncToPlatforms,       // 数组，希望同步到的其他平台
+        authorPlatform,
+        syncToPlatforms,
         submittedAt: Date.now(),
         steps: {
-            ownPost: { votes: [] },  // 是否适合发到作者负责的平台
+            ownPost: { votes: [] },
         },
     };
     syncToPlatforms.forEach(p => {
@@ -347,6 +390,15 @@ function createRequest({ authorId, title, content, authorPlatform, syncToPlatfor
     requests.push(req);
     saveRequests(requests);
     return req;
+}
+
+// 获取所有"已通过"的原创请求 (用于同步请求的下拉选项)
+function getApprovedOriginalRequests() {
+    const requests = loadRequests();
+    return requests.filter(r => {
+        if (r.type === "sync") return false;
+        return computeRequestStatus(r) === "approved";
+    });
 }
 
 function deleteRequest(requestId, userId) {
