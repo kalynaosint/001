@@ -209,6 +209,37 @@ body {
 .role-operator { background: #d8e8fc; color: #1a4a8a; border: 1px solid #5080d0; }
 .role-leader { background: #f3d8fc; color: #5a1a8a; border: 1px solid #a050d0; }
 .role-member { background: #e8e8e8; color: #555; border: 1px solid #aaa; }
+.role-guest { background: #fff3d6; color: #8a5a1a; border: 1px solid #d9a050; }
+
+/* 请求类型标签(在卡片标题前) */
+.request-type-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-right: 6px;
+    vertical-align: middle;
+    line-height: 1.6;
+}
+.request-type-tag.type-sync {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #42a5f5;
+}
+
+/* 同步请求 - 原视频链接区 */
+.sync-source-link {
+    background: #f0f7ff;
+    border: 1px solid #c5dbec;
+    padding: 6px 10px;
+    margin: 8px 0;
+    font-size: 12px;
+    border-radius: 3px;
+}
+.sync-source-link a {
+    word-break: break-all;
+}
 
 .user-info-bar a {
     color: #00309C;
